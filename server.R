@@ -1363,7 +1363,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$save_table, {
-    write.csv(regex_reactive_df(), "/mnt/data/regex_lookup.csv", row.names = FALSE)
+    write.csv(regex_reactive_df(), "./data/regex_lookup.csv", row.names = FALSE)
     
     # Triggers a "grayed out" back to a "normal" state so user knows that the click went through
     shinyjs::addClass(id="save_table", class="grayed-out-button", asis=TRUE)
