@@ -627,7 +627,7 @@ server <- function(input, output, session) {
   output$rolling_count_running_processes_time_series <- highcharter::renderHighchart({
     if(!is.null(usage_time_series_df())) {
       df <- usage_time_series_df()
-      browser()
+      #browser()
       hc <- df %>%
         hchart(
           "area",
