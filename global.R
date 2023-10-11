@@ -1,7 +1,7 @@
 rm(list=ls())
 
 #### THESE CAN BE EDITED! ####
-domino_project_name <- "allstate_log_parser"
+domino_project_name <- "allstate_log_github"
 domino_url <- 'prod-field.cs.domino.tech'
 
 
