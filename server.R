@@ -1293,7 +1293,7 @@ server <- function(input, output, session) {
   ##### UPLOAD TAB #####
   ##### ERROR REGEX MATCHING UPDATE TABLE #####
   
-  regex_df <- read.csv('/mnt/data/regex_lookup.csv')
+  regex_df <- read.csv('./data/regex_lookup.csv')
   regex_reactive_df <- reactiveVal(regex_df)
   
   output$regex_lookup_dt <- DT::renderDT({
