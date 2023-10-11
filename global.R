@@ -3,7 +3,7 @@ rm(list=ls())
 #### THESE CAN BE EDITED! ####
 domino_project_name <- "allstate_log_github"
 domino_url <- 'prod-field.cs.domino.tech'
-
+data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 
 # Load the required packages
 #### GLOBAL.R ####
@@ -35,7 +35,6 @@ options(scipen = 999)
 
 
 domino_user_api_key <- system("echo $DOMINO_USER_API_KEY", intern=TRUE)
-data_directory <- paste0("/domino/datasets/local/", domino_project_name, "/")
 
 
 #### Precreate all the needed folders (for dependencies/data/etc...) ####
