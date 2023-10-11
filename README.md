@@ -76,7 +76,7 @@ data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 
 ## Environment
 
-Before you can properly run the application, you need to create an environment that includes the various R packages that are used to perform ETL processes and visualize results. This can be done by navigating to `Environments > Create Environment`. Specify to `Customize before building` and use the existing base image ``
+Before you can properly run the application, you need to create an environment that includes the various R packages that are used to perform ETL processes and visualize results. This can be done by navigating to `Environments > Create Environment`. Specify to `Customize before building` and use the existing base image `5.7 Domino Standard Environment Py3.9 R4.3.1` and then enter tthe following into `Dockerfile Instructions`:
 
 
 ```
