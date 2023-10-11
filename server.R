@@ -627,7 +627,7 @@ server <- function(input, output, session) {
   output$rolling_count_running_processes_time_series <- highcharter::renderHighchart({
     if(!is.null(usage_time_series_df())) {
       df <- usage_time_series_df()
-      
+      browser()
       hc <- df %>%
         hchart(
           "area",
@@ -889,7 +889,7 @@ server <- function(input, output, session) {
     #   download_list <- unique(row_subset$run_id)
     # }
     #cat("DOWNLOAD RUN ID LIST: ", paste0(download_list, collapse=", "), "\n")
-    
+    #browser()
     output_df <- data.frame()
     # Now loop through each id, pull execution file, perform summary analysis
     withProgress(message='Downloading and Extracting Bundle Summaries', detail="Please wait...", value=0, {
@@ -950,7 +950,6 @@ server <- function(input, output, session) {
           output_df <- rbind(output_df, metadata_errors)
         }
         ###### WRITE OUTPUT TO CSV ######
-        
         if(!dir.exists(summary_directory)) {
           dir.create(summary_directory)
         }
@@ -964,6 +963,8 @@ server <- function(input, output, session) {
       }
     })
     #################### END OF FOR LOOP ########################
+    output_df$Execution_Status <- report_df()$status[match(output_df$execution_id, report_df()$run_id)]
+    
     metadata_df(output_df)
     #browser()
   })
@@ -1055,9 +1056,9 @@ server <- function(input, output, session) {
       shiny::validate(
         need(nrow(metadata_df()) > 0, "No errors identified in the selected bundles.")
       )
-      
+      #browser()
       df <- metadata_df()
-      df <- df[c("execution_id", "Date_Time", "Error_Type", "File_Path", "Line_Number", "Context")]
+      df <- df[c("execution_id", "Execution_Status", "Node", "Date_Time", "Error_Type", "File_Path", "Line_Number", "Context")]
       colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase(.)
       
       DT::datatable(df,rownames = FALSE, class = "compact", filter="top",

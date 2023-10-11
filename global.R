@@ -218,10 +218,14 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
   domino_error_pattern <- regex_pattern_df$regex_pattern[which(regex_pattern_df$error_type == "domino")] %>% paste0(., collapse="|")
   user_error_pattern <- regex_pattern_df$regex_pattern[which(regex_pattern_df$error_type == "user")] %>% paste0(., collapse="|")
   
-  
+  associated_node_ip <- NA
   ###### 3. CRAWL FILES FOR POTENTIAL ERRORS ######
   metadata_errors <- lapply(file_paths, function(target_file_name) {
     target_file <- readLines(target_file_name)
+    
+    associated_node <- target_file[grep("assignedNodeName", target_file)]
+    associated_node <- stringi::stri_extract(associated_node, regex="ip-[0-9]+-[0-9]+-[0-9]+-[0-9]+\\..*\\.compute.internal")
+    if(length(associated_node) > 0) associated_node_ip <<- associated_node
     
     cluster_error_lines <- grep(cluster_error_pattern, target_file)
     if(length(cluster_error_lines) > 0){
@@ -232,7 +236,7 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
       cluster_errors <- cluster_errors[which(!is.na(cluster_errors))]
       cluster_error_description <- target_file[cluster_error_lines]
       cluster_data <- data.frame('Error'=cluster_errors, 'Line_Number'=cluster_error_lines, 'Context'=cluster_error_description)
-      cluster_data['Error_Type'] <- "cluster"
+      cluster_data$Error_Type <- "cluster"
     }
     
     domino_error_lines <- grep(domino_error_pattern, target_file)
@@ -244,7 +248,7 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
       #domino_errors <- domino_errors[which(!is.na(domino_errors))]
       domino_error_description <- target_file[domino_error_lines]
       domino_data <- data.frame('Error'=domino_errors, 'Line_Number'=domino_error_lines, 'Context'=domino_error_description)
-      domino_data['Error_Type'] <- "domino"
+      domino_data$Error_Type <- "domino"
     }
     
     user_error_lines <- grep(user_error_pattern, target_file)
@@ -256,7 +260,7 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
       user_errors <- user_errors[which(!is.na(user_errors))]
       user_error_description <- target_file[user_error_lines]
       user_data <- data.frame('Error'=user_errors, 'Line_Number'=user_error_lines, 'Context'=user_error_description)
-      user_data['Error_Type'] <- "user"
+      user_data$Error_Type <- "user"
     }
     
     out <- data.frame(
@@ -271,7 +275,7 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
     if (length(user_error_lines) > 0) out <- rbind(out, user_data)
     
     if(nrow(out) > 0) {
-      out['File_Path'] <- target_file_name
+      out$File_Path <- target_file_name
     } else {
       out <- cbind(out, File_Path = character(0))
     }
@@ -281,6 +285,10 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
   
   datetime_str <- stringi::stri_extract(metadata_errors$Context, regex="\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")
   metadata_errors$Date_Time <- lubridate::ymd_hms(datetime_str, tz = "UTC")
-  
+  if(nrow(metadata_errors) > 0) {
+    metadata_errors$Node <- associated_node_ip
+  } else {
+    metadata_errors <- cbind(metadata_errors, Node = character(0))
+  }
   return(metadata_errors)
 }
