@@ -11,10 +11,9 @@ This RShiny application aims to perform error identification and analysis of wor
 ## Table of Contents
 
 1. [Data Sources](#data-sources)
-2. [Overview](#overview)
-3. [Installation](#installation)
-4. [Environment](#environment) 
-5. [Analysis Process](#analysis-process)
+2. [Installation](#installation)
+3. [Environment](#environment) 
+4. [Error Analysis Identification/Classification Methods](#error-analysis-identificationclassification-methods)
    
 ---
 
