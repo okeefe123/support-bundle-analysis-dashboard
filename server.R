@@ -840,7 +840,7 @@ server <- function(input, output, session) {
       execution_id <- download_list[1]
       for (execution_id in download_list) {
         # Done so that bundle summaries aren't recalculated
-        summary_directory <- paste0("/domino/datasets/local/", domino_project_name, "/support-bundle-summaries")
+        summary_directory <- paste0(data_directory, "support-bundle-summaries")
         summary_file <- paste0(summary_directory, "/", execution_id, "-summary.csv")
         if(file.exists(summary_file) & input$use_cached_analysis == TRUE) {
           #browser()
@@ -853,7 +853,7 @@ server <- function(input, output, session) {
         }
         zip_url <- paste0("https://", domino_url, "/v4/admin/supportbundle/", execution_id)
         
-        bundle_root_directory <- paste0("/domino/datasets/local/", domino_project_name, "/support-bundles")
+        bundle_root_directory <- paste0(data_directory, "support-bundles")
         if(!dir.exists(bundle_root_directory)) {
           dir.create(bundle_root_directory)
         }
@@ -919,7 +919,6 @@ server <- function(input, output, session) {
       shiny::validate(
         need(nrow(metadata_df()) > 0, "No errors identified in the selected bundles.")
       )
-      browser()
       highest_vote <- data.frame(execution_id=unique(metadata_df()$execution_id))
 
       #execution_id <- unique(metadata_df()$execution_id)[2]

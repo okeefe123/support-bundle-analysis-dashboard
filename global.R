@@ -56,7 +56,8 @@ if(!file.exists('./data/regex_lookup.csv')) {
     'Failed to create pod sandbox',
     'failed to get memory utilization',
     'error determining status: rpc error: code',
-    'Unable to attach or mount volumes:'
+    'Unable to attach or mount volumes:',
+    'Error creating:'
   )
   cluster_df <- data.frame(error_type=rep("cluster", length(cluster_error_pattern)), regex_pattern=cluster_error_pattern)
   
