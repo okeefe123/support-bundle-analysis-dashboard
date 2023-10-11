@@ -96,8 +96,18 @@ ui <- shiny::fluidPage(
                 }
                 
                 .inline-radio .radio { display: inline-block; margin-right: 10px;}
+                
+                .limit-height {
+                  max-height: 250px !important;
+                  overflow-y: auto !important;
+                }
                ")
-          )
+          ),
+          tags$script("
+            Shiny.addCustomMessageHandler('jsCode', function(script) {
+              eval(script);
+            });
+          ")
         ),
         bs4Dash::tabItems(
           bs4Dash::tabItem(tabName = "bundle_summary",
@@ -113,7 +123,7 @@ ui <- shiny::fluidPage(
                   ),
                   fluidRow(
                     bs4Dash::bs4Card(width=12, maximizable=TRUE, 
-                                     DT::DTOutput("dt_render"),
+                                     DT::DTOutput("bundle_error_dt_render"),
                                      HTML("<br>"),
                                      shiny:: downloadButton("dt_render_downloader", "Download")
                                      )

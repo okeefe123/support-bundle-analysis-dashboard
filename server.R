@@ -420,23 +420,79 @@ server <- function(input, output, session) {
       df <- df[,c(first_cols, last_cols)]
       colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase()
       colnames(df)
+      # DT::datatable(df,
+      #               rownames = FALSE,
+      #               filter="top",
+      #               class = "compact",
+      #               selection = list(target = 'row', selected='indices'),
+      #               options = list(
+      #                 dom = 'Bfrtip',  # Define the table control elements to appear and their order
+      #                 buttons = c('colvis'),
+      #                 #scrollX = TRUE,
+      #                 #sScrollY = '75vh',
+      #                 #scrollCollapse = TRUE,
+      #                 #searching = TRUE,
+      #                 #paging = TRUE,
+      #                 #pageLength=50,
+      #                 #lengthMenu=c(10,20,50,100),
+      #                 #bInfo=TRUE,
+      #                 #autoWidth=TRUE,
+      #                 initComplete = JS(
+      #                   "function(settings) {",
+      #                   "$(settings.nTHead).css('background-color', '#f5f5f5');",
+      #                   "}"
+      #                 )
+      #               ),
+      #               extensions = list("Scroller", "Buttons")
+      # )
+      # datatable(
+      #   df,
+      #   extensions = 'Buttons',  # Enable the Buttons extension
+      #   filter = 'top', 
+      #   options = list(
+      #     dom = 'Bfrtip',  # Define the table control elements to appear and their order
+      #     buttons = c('colvis'),  # Include column visibility button
+      #     columnDefs = list(
+      #       list(className = 'dt-center', targets = "_all")
+      #     ),
+      #     initComplete = JS(
+      #       "function(settings) {",
+      #       "$(settings.nTHead).css('background-color', '#f5f5f5');",
+      #       "}"
+      #     )
+      #   )
+      # )
       DT::datatable(df,
-                    rownames = FALSE, 
-                    # class = "compact",
-                    selection = list(target = 'row', selected='indices'),
+                    rownames = FALSE,
+                    filter = "top",
+                    class = "compact",
+                    selection = list(target = 'row', selected = 'indices'),
+                    extensions = c("Buttons", "Scroller"),
                     options = list(
                       scrollX = TRUE,
                       sScrollY = '75vh',
                       scrollCollapse = TRUE,
-                      searching = TRUE,
-                      paging = TRUE,
-                      pageLength=50,
-                      lengthMenu=c(10,20,50,100),
-                      bInfo=TRUE,
-                      autoWidth=TRUE
-                    ),
-                    extensions = list("Scroller")
+                      dom = 'Bfrtip',
+                      buttons = c('colvis'),
+                      initComplete = JS(
+                        "function(settings) {",
+                        "$(settings.nTHead).css('background-color', '#f5f5f5');",
+                        "}"
+                      )
+                    )
       )
+  })
+  
+  observe({
+    # JavaScript to add the class when colvis dropdown opens
+    script <- "
+      $(document).on('click', '.dt-button', function() {
+        setTimeout(function() {
+          $('.dt-button-collection').addClass('limit-height');
+        }, 10);
+      });
+    "
+    session$sendCustomMessage(type = 'jsCode', message = script)
   })
   
   output$report_render_downloader <- downloadHandler(
@@ -1004,7 +1060,7 @@ server <- function(input, output, session) {
       df <- df[c("execution_id", "Date_Time", "Error_Type", "File_Path", "Line_Number", "Context")]
       colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase(.)
       
-      DT::datatable(df,rownames = FALSE, class = "compact",
+      DT::datatable(df,rownames = FALSE, class = "compact", filter="top",
                     options = list(server=FALSE, autoWidth=TRUE, scrollX = TRUE, sScrollY = '75vh',
                                    selection = list(target = 'row', selected='indices', mode='single'),
                                    scrollCollapse = TRUE, searching = TRUE,
@@ -1231,7 +1287,6 @@ server <- function(input, output, session) {
   
   support_bundle_df <- shiny::reactive({
     if(!is.null(support_bundle_csv_files())) {
-      browser()
       support_bundle_df <- lapply(support_bundle_csv_files(), function(target_file) {
         #cat("READING IN THE FOLLOWING FILE: ", target_file, "\n")
         df <- read.csv(paste0(data_directory, "support-bundle-summaries/", target_file))
@@ -1266,7 +1321,7 @@ server <- function(input, output, session) {
       df <- df[c("Date_Time", "Error_Type", "File_Path", "Line_Number", "Context")]
       colnames(df) <- gsub("_", " ", colnames(df))
       
-      DT::datatable(df,rownames = FALSE, class = "compact",
+      DT::datatable(df,rownames = FALSE, class = "compact", filter="top",
                     options = list(scrollX = TRUE, sScrollY = '75vh',
                                    scrollCollapse = TRUE, searching = TRUE,
                                    paging = TRUE, pageLength=50, lengthMenu=c(10,20,50,100)
@@ -1308,8 +1363,10 @@ server <- function(input, output, session) {
       
       DT::datatable(df, 
                     editable = TRUE,
-                    rownames = FALSE, class = "compact",
-                    options = list(autoWidth = TRUE, 
+                    rownames = FALSE, 
+                    class = "compact",
+                    filter = "top",
+                    options = list(#autoWidth = TRUE, 
                                    scrollX = TRUE, 
                                    sScrollY = '75vh',
                                    scrollCollapse = TRUE, 
@@ -1318,6 +1375,9 @@ server <- function(input, output, session) {
                                    pageLength = 50, 
                                    lengthMenu = c(10, 20, 50, 100),
                                    bInfo = TRUE,
+                                   columnDefs = list(
+                                     list(className = 'dt-center', targets = "_all")
+                                   ),
                                    rowCallback = JS(
                                      "function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
                                      $(nRow).attr('id', 'row_' + aData[0]);
