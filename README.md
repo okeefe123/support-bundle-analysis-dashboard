@@ -14,7 +14,8 @@ This RShiny application aims to perform error identification and analysis of wor
 2. [Overview](#overview)
 3. [Installation](#installation)
 4. [Environment](#environment) 
-
+5. [Analysis Process](#analysis-process)
+   
 ---
 
 ## Data Sources
@@ -82,3 +83,11 @@ Before you can properly run the application, you need to create an environment t
 ```
 RUN R --no-save -e 'install.packages(c("shiny", "shinydashboard", "DT", "digest", "data.table", "highcharter", "viridis", "shinyjs", "dplyr", "stringi", "httr", "tools", "magrittr", "lubridate", "bs4Dash", "shinycssloaders", "rintrojs"))'
 ```
+
+--
+
+## Error Analysis Identification/Classification Methods
+
+In conducting the error analysis, the program parses through log files and identifies errors as hits on regular expression pattern matches. In this current iteration, regex expressions are manually maintained and can be edited via the `Regex Error Filters` tab.
+
+The regex lookup table can be found under the path: `mnt/code/data/regex_lookup.csv`
