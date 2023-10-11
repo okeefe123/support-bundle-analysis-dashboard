@@ -61,6 +61,7 @@ All support bundles are saved, with error analysis identification and classifica
 1. Fork this github repo. Be sure that you have your github credentials imported into the domino tenant. These settings can be found in the bottom left `Account > Settings > Git Credentials > Add Credentials`
 2. Create a new project and import the forked repo:
 [](./www/add_git_credentials.png)
+
    <b>Note:</b> When prompted for the environment, you will need to create and use the custom environment detailed in the following section.
 4. Either in the forked github repo itself or in a created workspace on Domino, change the following first few lines in the file `global.R` to suit your situation:
 ```
@@ -76,7 +77,7 @@ data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 
 ## Environment
 
-Before you can properly run the application, you need to create an environment that includes the various R packages that are used to perform ETL processes and visualize results. This can be done by navigating to `Environments > Create Environment`. Specify to `Customize before building` and use the existing base image `5.7 Domino Standard Environment Py3.9 R4.3.1` and then enter tthe following into `Dockerfile Instructions`:
+Before you can properly run the application, you need to create an environment that includes the various R packages that are used to perform ETL processes and visualize results. This can be done by navigating to `Environments > Create Environment`. Specify to `Customize before building` and use the existing base image `5.7 Domino Standard Environment Py3.9 R4.3.1`. Enter the following into `Dockerfile Instructions`:
 
 
 ```
