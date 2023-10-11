@@ -1061,7 +1061,7 @@ server <- function(input, output, session) {
       colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase(.)
       
       DT::datatable(df,rownames = FALSE, class = "compact", filter="top",
-                    options = list(server=FALSE, autoWidth=TRUE, scrollX = TRUE, sScrollY = '75vh',
+                    options = list(server=FALSE, scrollX = TRUE, sScrollY = '75vh',
                                    selection = list(target = 'row', selected='indices', mode='single'),
                                    scrollCollapse = TRUE, searching = TRUE,
                                    paging = TRUE, pageLength=50, lengthMenu=c(10,20,50,100)
