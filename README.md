@@ -19,7 +19,7 @@ This RShiny application aims to perform error identification and analysis of wor
 
 ## Data Sources
 
-<b>Resource Usage:</b>
+### Resource Usage:
 
 Gives a report of every execution and all related status metadata. These can be workspaces, jobs, or models. Example of a POST:
 
@@ -37,7 +37,7 @@ response <- httr::POST(url = resource_usage_url, body=payload, add_headers(heade
 
 Results are saved into local datasets, separating them by date into subdirectory `/mnt/data/{project_name}/resource-usage-by-day/`. This is then a cache for future queries.
 
-<b>Support Bundles:</b>
+### Support Bundles:
 
 These logs are downloaded as zip files from each execution that can be found in the Resource Usage calls. Resulting files are largely unstructured text keeping track of processes happening in the underlying kubernetes infrastructure of Domino. The user can choose to execute an `analysis`, which takes the selected subset of executions and identifies errors in their log files. These errors are classified as cluster, domino, or user (in sequential hierarchy). Example GET:
 
