@@ -6,6 +6,7 @@ This RShiny application aims to perform error identification and analysis of wor
 ./app.sh
 ```
 
+![](www/dashboard_screenshot.png)
 --
 
 ## Table of Contents
