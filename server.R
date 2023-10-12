@@ -1109,14 +1109,6 @@ server <- function(input, output, session) {
       file_sizes <- file.info(support_bundle_summaries)
       largest_file <- rownames(file_sizes)[which(file_sizes$size == max(file_sizes$size))]
       largest_file <- stringi::stri_extract(largest_file, regex="(?<=/support-bundle-summaries/).*")
-      #browser()
-      # project_name
-      # system(paste0("ls -l /domino/datasets/local/", domino_project_name, "/support-bundle-summaries"), intern = TRUE)
-      # # Identify the index of the largest file
-      ##largest_file_index <- which.max(file_sizes)
-      # # Extract the name of the largest file
-      # largest_file <- filelist[largest_file_index]
-      #largest_file <- system(paste0("find /domino/datasets/local/", domino_project_name, "/support-bundle-summaries -type f -exec du -a {} + | sort -n -r | head -n 1"), intern=TRUE)
       support_bundle_csv_files(largest_file)
       
       shiny::selectizeInput(inputId = "csv_file_dropdown",
@@ -1153,23 +1145,8 @@ server <- function(input, output, session) {
         hc_title(text=paste0("Errors")) %>%
         hc_subtitle(text=paste0("Click a category to drill down into it.")) %>%
         hc_legend(FALSE) %>%
-        # hc_tooltip(
-        #   pointFormat = "<span style='color:{point.color}'>●</span> {series.name}: <b>{point.y}</b><br/>",
-        #   borderWidth = 0,
-        #   backgroundColor = 'none',
-        #   shadow = FALSE,
-        #   style = list(fontSize = "16px", fontWeight = "bold", color = "#000000"),
-        #   useHTML = TRUE
-        # ) %>%
         hc_xAxis(title=list(text='Error Type'), categories=bin_labels) %>%
         hc_yAxis(title=list(text='')) %>%
-        # hc_add_event_point("click", JS("function (event) {
-        #         Shiny.setInputValue('clicked_bar', event.point.Error_Type);
-        #      }"))
-        # hc_add_event_point("click", function(e) {
-        # # Use Shiny.setInputValue to send the clicked category to Shiny
-        #   shinyjs::runjs(sprintf("Shiny.setInputValue('clicked_bar', '%s');", e$Error_Type))
-        #  })
         hc_plotOptions(
           series = list(
             cursor = "pointer",
@@ -1198,14 +1175,6 @@ server <- function(input, output, session) {
     current_error_type("All")
     support_bundle_csv_files(input$csv_file_dropdown)
   })
-  
-  # observeEvent(input$csv_file_dropdown, {
-  #   current_error_type("All")
-  # })
-  
-  # observe({
-  #   print(paste("Error Type Changed To: ", current_error_type()))
-  # })
   
   df_time_series <- shiny::reactive({
     if(!is.null(support_bundle_subset())) {
@@ -1310,6 +1279,53 @@ server <- function(input, output, session) {
       }
     }
   )
+  
+  output$bundle_content_summary_select_ui <- shiny::renderUI({
+    if(!is.null(input$csv_file_dropdown)) {
+      #browser()
+      execution_id <- stringi::stri_extract(input$csv_file_dropdown, regex=".*(?=-summary\\.csv)")
+      directories <- paste0(data_directory, "support-bundles/support-bundle-", execution_id)
+      path_choices <- list.files(directories, full.names=TRUE)
+      names(path_choices) <- list.files(directories, full.names=FALSE)
+      
+      shiny::validate(
+        need(length(path_choices) > 0, as.character("No associated files found. This tends to be the result of a (500) Internal Server Error on pull of support bundle. Refer to documentation to manually extract by execution id."))
+      )
+      
+      div(class = "shiny-select-spacing",
+          shiny::selectizeInput(inputId = "bundle_content_summary_select",
+                                label = "Choose File",
+                                choices = path_choices,
+                                selected = path_choices[1],
+                                multiple = FALSE)
+      )
+    }
+  })
+  
+  output$bundle_summary_content <- renderText({
+    # Check if the file input is not NULL
+    if (!is.null(input$bundle_content_summary_select)) {
+      # Read the file content
+      #browser()
+      bundle_summary_content <- readLines(input$bundle_content_summary_select, warn = FALSE)
+      if(length(bundle_summary_content) > 0) {
+        #bundle_summary_content <- paste0("<b>", seq_along(bundle_summary_content), ":</b>&nbsp;&nbsp;", bundle_summary_content)
+        # Compute the maximum number of digits
+        max_digits <- nchar(max(seq_along(bundle_summary_content)))
+        
+        # Generate the strings with adjusted spaces
+        bundle_summary_content <- mapply(function(index, content) {
+          spaces_needed <- max_digits - nchar(index)
+          spaces <- paste(rep("&nbsp;", times = spaces_needed + 2), collapse = "") # 2 additional spaces for clarity
+          paste0("<b>", index, ":</b>", spaces, content)
+        }, seq_along(bundle_summary_content), bundle_summary_content)
+      }
+      # Convert the content to a single string and return
+      paste(bundle_summary_content, collapse = "<br>")
+    } else {
+      return(NULL)
+    }
+  })
   
   ##### UPLOAD TAB #####
   ##### ERROR REGEX MATCHING UPDATE TABLE #####
@@ -1463,15 +1479,26 @@ server <- function(input, output, session) {
     }
   })
   
-  output$file_content <- renderText({
+  output$regex_file_content <- renderText({
     # Check if the file input is not NULL
     if (!is.null(input$support_bundle_file_select)) {
       # Read the file content
       #browser()
-      file_content <- readLines(input$support_bundle_file_select, warn = FALSE)
-      
+      regex_file_content <- readLines(input$support_bundle_file_select, warn = FALSE)
+      if(length(regex_file_content) > 0) {
+        #regex_file_content <- paste0("<b>", seq_along(regex_file_content), ":</b>&nbsp;&nbsp;", regex_file_content)
+        # Compute the maximum number of digits
+        max_digits <- nchar(max(seq_along(regex_file_content)))
+        
+        # Generate the strings with adjusted spaces
+        regex_file_content <- mapply(function(index, content) {
+          spaces_needed <- max_digits - nchar(index)
+          spaces <- paste(rep("&nbsp;", times = spaces_needed + 2), collapse = "") # 2 additional spaces for clarity
+          paste0("<b>", index, ":</b>", spaces, content)
+        }, seq_along(regex_file_content), regex_file_content)
+      }
       # Convert the content to a single string and return
-      paste(file_content, collapse = "<br>")
+      paste(regex_file_content, collapse = "<br>")
     } else {
       return(NULL)
     }

@@ -122,10 +122,17 @@ ui <- shiny::fluidPage(
                                                                   width="100%")))
                   ),
                   fluidRow(
-                    bs4Dash::bs4Card(width=12, maximizable=TRUE, 
+                    bs4Dash::bs4Card(width=6, maximizable=TRUE, 
                                      DT::DTOutput("bundle_error_dt_render"),
                                      HTML("<br>"),
                                      shiny:: downloadButton("dt_render_downloader", "Download")
+                                     ),
+                    bs4Dash::bs4Card(width=6, maximizable=TRUE,
+                                     shiny::uiOutput("bundle_content_summary_select_ui"),
+                                      div(
+                                        htmlOutput("bundle_summary_content"),
+                                        style = "overflow: auto; height: 600px; width: 100%; border: 1px solid #ddd; padding: 10px; font-family: 'Courier New', monospace;"
+                                      )
                                      )
                   )
           ),
@@ -186,8 +193,8 @@ ui <- shiny::fluidPage(
                       #fileInput("file", "Choose .log or .json File", accept = c(".log", ".json")),
                       fluidRow(width=12,
                         div(
-                          htmlOutput("file_content"),
-                          style = "overflow: auto; height: 600px; width: 100%; border: 1px solid #ddd; padding: 10px;"
+                          htmlOutput("regex_file_content"),
+                          style = "overflow: auto; height: 600px; width: 100%; border: 1px solid #ddd; padding: 10px; font-family: 'Courier New', monospace;"
                         )
                       )
                     )
