@@ -1,4 +1,4 @@
-# Execution Analysis Dashboard
+# Support Bundle Analysis Dashboard
 
 This RShiny application aims to perform error identification and analysis of workloads executed in [Domino Data Lab](https://domino.ai/). The user can interact with subsets of the resource usage reports and trigger a regex extraction of the log files in support bundles for errors related to the cluster, domino, or the users themselves. To run the application, all that is needed is the execution file. At the time of creation, `R 4.3.1` was used.
 
