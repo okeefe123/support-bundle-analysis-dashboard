@@ -328,6 +328,7 @@ server <- function(input, output, session) {
       
       # Convert continuous variable "time_to_boot_s" and transform into categorical variable of form "Xs to Ys"
       # This is NOT in feature engineering function as this is not a mapped feature (changes depending on dataset)
+      #browser()
       n <- 5
       breaks_range <- cut(report_df_api$time_to_boot_s, breaks=n, include.lowest=TRUE)
       no_brackets <- gsub("\\[|\\]", "", breaks_range)
@@ -366,6 +367,9 @@ server <- function(input, output, session) {
         report_df <- report_df[which(report_df$project_name %in% usage_filters$project_name),]
       }
       
+      shiny::validate(
+        need(nrow(report_df) > 0, "Selected filters yield no results. Please try with a different selection.")
+      )
       # Recalculate the "time to boot." We want this to be done each time the filters are set since
       # the bins change depending on report_df subset. The final target_col conditional is done after
       # so the newest calculations of "time_to_boot" is used.
@@ -385,22 +389,26 @@ server <- function(input, output, session) {
       # Include outliers bins
       breaks <- unique(unname(c(Lower_Bound, bins, Upper_Bound)))
       
-      # Bin the data using the defined breaks
-      breaks_range <- cut(report_df$time_to_boot_s, breaks=breaks, include.lowest=TRUE, right=FALSE)
-      no_brackets <- gsub("\\[|\\]", "", breaks_range)
-      no_parenthesis <- gsub("\\(|\\)", "", no_brackets)
-      no_negative_time <- gsub("-[0-9]+\\.[0-9]+", "0", no_parenthesis)
-      # 2. Split string at comma
-      entry <- no_negative_time[1]
-      output_string <- lapply(no_negative_time, function(entry) {
-        numbers <- strsplit(entry, ",")[[1]]
-        modified_numbers <- sapply(numbers, function(x) {
-          base::ifelse(as.numeric(x) >= 60, paste0(as.character(base::round(as.numeric(x)/60, 1)), "min"), paste0(x, "s"))
-        })
-        #modified_numbers <- paste0(numbers, "s")
-        output_string <- paste(modified_numbers[1], "to", modified_numbers[2])
-      }) %>% unlist()
-      report_df$time_to_boot <- output_string
+      if(length(breaks) > 1) {
+        # Bin the data using the defined breaks
+        breaks_range <- cut(report_df$time_to_boot_s, breaks=breaks, include.lowest=TRUE, right=FALSE)
+        no_brackets <- gsub("\\[|\\]", "", breaks_range)
+        no_parenthesis <- gsub("\\(|\\)", "", no_brackets)
+        no_negative_time <- gsub("-[0-9]+\\.[0-9]+", "0", no_parenthesis)
+        # 2. Split string at comma
+        entry <- no_negative_time[1]
+        output_string <- lapply(no_negative_time, function(entry) {
+          numbers <- strsplit(entry, ",")[[1]]
+          modified_numbers <- sapply(numbers, function(x) {
+            base::ifelse(as.numeric(x) >= 60, paste0(as.character(base::round(as.numeric(x)/60, 1)), "min"), paste0(x, "s"))
+          })
+          #modified_numbers <- paste0(numbers, "s")
+          output_string <- paste(modified_numbers[1], "to", modified_numbers[2])
+        }) %>% unlist()
+        report_df$time_to_boot <- output_string
+      } else {
+        report_df$time_to_boot <- base::ifelse(as.numeric(report_df$time_to_boot_s) >= 60, paste0(as.character(base::round(as.numeric(report_df$time_to_boot_s)/60, 1)), "min"), paste0(report_df$time_to_boot_s, "s"))
+      }
       
       
       if(!is.null(usage_filters$target_col)) {
@@ -412,79 +420,37 @@ server <- function(input, output, session) {
   })
   
   output$report_render <- DT::renderDT({
-      #browser()
-      df <- report_df()
-      df <- df[, which(!(colnames(df) %in% c("date", "target_col")))]
-      first_cols <- c("run_id", "starting_user", "project_name", usage_filters$target_col)
-      last_cols <- setdiff(colnames(df), first_cols)
-      df <- df[,c(first_cols, last_cols)]
-      colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase()
-      colnames(df)
-      # DT::datatable(df,
-      #               rownames = FALSE,
-      #               filter="top",
-      #               class = "compact",
-      #               selection = list(target = 'row', selected='indices'),
-      #               options = list(
-      #                 dom = 'Bfrtip',  # Define the table control elements to appear and their order
-      #                 buttons = c('colvis'),
-      #                 #scrollX = TRUE,
-      #                 #sScrollY = '75vh',
-      #                 #scrollCollapse = TRUE,
-      #                 #searching = TRUE,
-      #                 #paging = TRUE,
-      #                 #pageLength=50,
-      #                 #lengthMenu=c(10,20,50,100),
-      #                 #bInfo=TRUE,
-      #                 #autoWidth=TRUE,
-      #                 initComplete = JS(
-      #                   "function(settings) {",
-      #                   "$(settings.nTHead).css('background-color', '#f5f5f5');",
-      #                   "}"
-      #                 )
-      #               ),
-      #               extensions = list("Scroller", "Buttons")
-      # )
-      # datatable(
-      #   df,
-      #   extensions = 'Buttons',  # Enable the Buttons extension
-      #   filter = 'top', 
-      #   options = list(
-      #     dom = 'Bfrtip',  # Define the table control elements to appear and their order
-      #     buttons = c('colvis'),  # Include column visibility button
-      #     columnDefs = list(
-      #       list(className = 'dt-center', targets = "_all")
-      #     ),
-      #     initComplete = JS(
-      #       "function(settings) {",
-      #       "$(settings.nTHead).css('background-color', '#f5f5f5');",
-      #       "}"
-      #     )
-      #   )
-      # )
-      DT::datatable(df,
-                    rownames = FALSE,
-                    filter = "top",
-                    class = "compact",
-                    selection = list(target = 'row', selected = 'indices'),
-                    extensions = c("Buttons", "Scroller"),
-                    options = list(
-                      scrollX = TRUE,
-                      sScrollY = '75vh',
-                      scrollCollapse = TRUE,
-                      dom = 'Bfrtip',
-                      buttons = c('colvis'),
-                      initComplete = JS(
-                        "function(settings) {",
-                        "$(settings.nTHead).css('background-color', '#f5f5f5');",
-                        "}"
+        df <- report_df()
+        df <- df[, which(!(colnames(df) %in% c("date", "target_col")))]
+        first_cols <- c("run_id", "starting_user", "project_name", usage_filters$target_col)
+        last_cols <- setdiff(colnames(df), first_cols)
+        df <- df[,c(first_cols, last_cols)]
+        colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase()
+        colnames(df)
+  
+        DT::datatable(df,
+                      rownames = FALSE,
+                      filter = "top",
+                      class = "compact",
+                      selection = list(target = 'row', selected = 'indices'),
+                      extensions = c("Buttons", "Scroller"),
+                      options = list(
+                        scrollX = TRUE,
+                        sScrollY = '75vh',
+                        scrollCollapse = TRUE,
+                        dom = 'Bfrtip',
+                        buttons = c('colvis'),
+                        initComplete = JS(
+                          "function(settings) {",
+                          "$(settings.nTHead).css('background-color', '#f5f5f5');",
+                          "}"
+                        )
                       )
-                    )
-      )
+        )
   })
   
   observe({
-    # JavaScript to add the class when colvis dropdown opens
+    # JavaScript which adds class into colvis button such that it's scrollable rather than a long list of buttons
     script <- "
       $(document).on('click', '.dt-button', function() {
         setTimeout(function() {
@@ -532,7 +498,7 @@ server <- function(input, output, session) {
   })
   
   output$run_type_donut_chart <- highcharter::renderHighchart({
-    if(!is.null(report_subset_agg_dt()) & !is.null(usage_filters$target_col)) {
+    if(!is.null(report_subset_agg_dt()) & !is.null(usage_filters$target_col) &!is.null(usage_filters$start_date) & !is.null(usage_filters$end_date)) {
       #browser()
       highchart() %>%
         hc_tooltip(formatter= JS("function () { return '<b>' + this.point.target_col + '</b> ' +
@@ -1139,7 +1105,7 @@ server <- function(input, output, session) {
       target_files <- fileList()[grep("\\.csv", fileList())]
       names(target_files) <- stringi::stri_extract(target_files, regex=".*(?=-summary)")
       #browser()
-      support_bundle_summaries <- paste0("/domino/datasets/local/", domino_project_name, "/support-bundle-summaries/", fileList())
+      support_bundle_summaries <- paste0(data_directory, "/support-bundle-summaries/", fileList())
       file_sizes <- file.info(support_bundle_summaries)
       largest_file <- rownames(file_sizes)[which(file_sizes$size == max(file_sizes$size))]
       largest_file <- stringi::stri_extract(largest_file, regex="(?<=/support-bundle-summaries/).*")
@@ -1319,7 +1285,7 @@ server <- function(input, output, session) {
   output$bundle_error_dt_render <- DT::renderDT({
     if(!is.null(support_bundle_subset())){
       df <- support_bundle_subset()
-      df <- df[c("Date_Time", "Error_Type", "File_Path", "Line_Number", "Context")]
+      df <- df[c("Node", "Date_Time", "Error_Type", "File_Path", "Line_Number", "Context")]
       colnames(df) <- gsub("_", " ", colnames(df))
       
       DT::datatable(df,rownames = FALSE, class = "compact", filter="top",

@@ -182,9 +182,15 @@ ui <- shiny::fluidPage(
                       fluidRow(width=12,
                         uiOutput("support_bundle_file_select_ui")
                       ),
+                      br(),
                       #fileInput("file", "Choose .log or .json File", accept = c(".log", ".json")),
-                      htmlOutput("file_content")
+                      fluidRow(width=12,
+                        div(
+                          htmlOutput("file_content"),
+                          style = "overflow: auto; height: 600px; width: 100%; border: 1px solid #ddd; padding: 10px;"
+                        )
                       )
+                    )
                   )
           ),
           bs4Dash::tabItem(tabName = "resource_usage",
