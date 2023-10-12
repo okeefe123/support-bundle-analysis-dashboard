@@ -1105,7 +1105,7 @@ server <- function(input, output, session) {
       target_files <- fileList()[grep("\\.csv", fileList())]
       names(target_files) <- stringi::stri_extract(target_files, regex=".*(?=-summary)")
       #browser()
-      support_bundle_summaries <- paste0(data_directory, "/support-bundle-summaries/", fileList())
+      support_bundle_summaries <- paste0(data_directory, "support-bundle-summaries/", fileList())
       file_sizes <- file.info(support_bundle_summaries)
       largest_file <- rownames(file_sizes)[which(file_sizes$size == max(file_sizes$size))]
       largest_file <- stringi::stri_extract(largest_file, regex="(?<=/support-bundle-summaries/).*")
