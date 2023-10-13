@@ -9,7 +9,7 @@ data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 #### GLOBAL.R ####
 #cat("THIS IS THE CURRENT WORKING DIRECTORY:", getwd(), "\n")
 pkgs <- c("shiny", "shinydashboard", "DT", "digest", "data.table", "highcharter", "viridis", "shinyjs", "dplyr",
-          "stringi", "httr", "tools", "magrittr", "lubridate", "jsonlite", "shinycssloaders", "rintrojs", "shinyWidgets")
+          "stringi", "httr", "tools", "magrittr", "lubridate", "jsonlite", "shinycssloaders", "rintrojs", "shinyWidgets", "crul")
 
 ipak <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
@@ -291,4 +291,58 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
     metadata_errors <- cbind(metadata_errors, Node = character(0))
   }
   return(metadata_errors)
+}
+
+
+####DOWNLOAD SUPPORT BUNDLES IN PARALLEL####
+unzip_regex_extraction_in_parallel <- function(file_paths, regex_pattern_df) {
+  
+  # Function to unzip a single file
+  unzip_single <- function(target_file) {
+    # Extract the base name without the .zip extension
+    base_name <- tools::file_path_sans_ext(basename(target_file))
+    final_dest_dir <- file.path(dest_dir, base_name)
+    
+    # Ensure the directory exists
+    if (!dir.exists(final_dest_dir)) {
+      dir.create(final_dest_dir, recursive = TRUE)
+    }
+    
+    unzip(target_file, exdir = final_dest_dir)
+    metadata_errors <- identify_support_bundle_errors(file_paths=target_file, regex_pattern_df = regex_pattern_df)
+    
+    if(nrow(metadata_errors) > 0) {
+      metadata_errors$execution_id <- execution_id
+    }
+    
+    execution_id <- stringi::stri_extract(target_file, regex="(?<=/async_tst/).*(?=\\.zip)")
+    summary_directory <- paste0(data_directory, 'support-bundle-summaries')
+    summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
+    
+    if(!dir.exists(summary_directory)) {
+      dir.create(summary_directory)
+    }
+    write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
+    
+    return(metadata_errors)
+  }
+  
+  # Get the number of cores available
+  no_cores <- detectCores() - 1  # using one less to leave a core free
+  
+  # Use parLapply to unzip in parallel
+  cl <- makeCluster(no_cores)
+  
+  dest_dir <<- paste0(data_directory, "support-bundles")
+  
+  clusterExport(cl, "dest_dir")
+  clusterExport(cl, "identify_support_bundle_errors")
+  clusterExport(cl, 'regex_pattern_df')
+  clusterEvalQ(cl, {
+    library(magrittr)
+  })
+  results <- parLapply(cl, file_paths, unzip_single) %>% do.call(rbind, .)
+  stopCluster(cl)
+  
+  return(results)
 }
