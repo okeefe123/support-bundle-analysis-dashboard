@@ -65,9 +65,9 @@ unzip_in_parallel <- function(file_paths) {
     library(magrittr)
   })
   results <- parLapply(cl, file_paths, unzip_single) %>% do.call(rbind, .)
-  zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
+  #zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
   # Delete the zip files
-  file.remove(zip_files)
+  #file.remove(zip_files)
   stopCluster(cl)
   
   return(results)
@@ -183,9 +183,10 @@ report_values <- read.csv(textConnection(plain_text))
 
 download_list <- report_values$Run.id
 
+existing_bundles <- list.dirs(paste0(data_directory, "support-bundles/"), full.names=FALSE)
 #download_list <- list.dirs('/mnt/data/allstate_log_github/support-bundles/', full.names=FALSE)[1:1000]
 #download_list <- stringi::stri_extract(download_list, regex="(?<=support-bundle-).*")[2:length(download_list)]
-
+download_list <- setdiff(download_list, existing_bundles)
 regex_pattern_df <- read.csv('/mnt/code/data/regex_lookup.csv')
 
 # Download the files via async
@@ -224,3 +225,4 @@ for (idx in seq_along(url_list)) {
 b <- Sys.time()
 
 b-a
+
