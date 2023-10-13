@@ -16,28 +16,35 @@ ipak <- function(pkg){
 
 ipak(pkgs)
 
+for(target_file in file_paths) {
+  cat("Target File: ", target_file, "\n")
+  unzip_single(target_file)
+}
+
 
 unzip_in_parallel <- function(file_paths) {
   
   # Function to unzip a single file
   unzip_single <- function(target_file) {
     # Extract the base name without the .zip extension
-    base_name <- tools::file_path_sans_ext(basename(target_file))
-    final_dest_dir <- file.path(dest_dir, base_name)
-    
-    # Ensure the directory exists
-    if (!dir.exists(final_dest_dir)) {
-      dir.create(final_dest_dir, recursive = TRUE)
-    }
-    
-    unzip(target_file, exdir = final_dest_dir)
+    # base_name <- tools::file_path_sans_ext(basename(target_file))
+    # final_dest_dir <- file.path(dest_dir, base_name)
+    # 
+    # # Ensure the directory exists
+    # if (!dir.exists(final_dest_dir)) {
+    #   dir.create(final_dest_dir, recursive = TRUE)
+    # }
+    # 
+    # unzip(target_file, exdir = final_dest_dir)
     metadata_errors <- identify_support_bundle_errors(file_paths=target_file, regex_pattern_df = regex_pattern_df)
     
+    execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*(?=\\.zip)")
+    
     if(nrow(metadata_errors) > 0) {
+      cat("Hit! Target file: ", target_file, "\n")
       metadata_errors$execution_id <- execution_id
     }
     
-    execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*(?=\\.zip)")
     summary_directory <- paste0(data_directory, "support-bundle-summary")
     summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
     
@@ -163,8 +170,8 @@ data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 
 
 resource_usage_url <- paste0("https://", domino_url, "/admin/generateUsageReport")
-date_range <- c(as.Date('2021-01-01'), as.Date(Sys.Date()))
-
+date_range <- c(as.Date(Sys.Date())-lubridate::days(7), as.Date(Sys.Date()))
+date_range <- c(as.Date('2022-01-01'), as.Date(Sys.Date()))
 payload <- paste0("start-date=", format(date_range[1], '%m/%d/%Y'), "&end-date=", format(date_range[2], '%m/%d/%Y'))
 #payload <- "start-date=09/15/2023&end-date=09/22/2023"
 
@@ -181,7 +188,7 @@ plain_text <- base::rawToChar(response$content)
 report_values <- read.csv(textConnection(plain_text))
 
 
-download_list <- report_values$Run.id
+download_list <- report_values$Run.id[which(report_values$Status %in% c("Failed", "Error"))]
 
 existing_bundles <- list.dirs(paste0(data_directory, "support-bundles/"), full.names=FALSE)
 #download_list <- list.dirs('/mnt/data/allstate_log_github/support-bundles/', full.names=FALSE)[1:1000]
