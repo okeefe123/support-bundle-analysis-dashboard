@@ -203,7 +203,7 @@ url_list <- split(urls, indices)
 a <- Sys.time()
 for (idx in seq_along(url_list)) {
   url <- url_list[[idx]]
-  cat("Progress: ", idx*10, "%\n")
+  cat("Progress: ", base::round(idx/length(url_list)*100, 0), "%\n")
   cc <- crul::Async$new(
     urls = url,
     headers = headers
@@ -222,4 +222,4 @@ for (idx in seq_along(url_list)) {
 }
 b <- Sys.time()
 
-cat(b-a)
+b-a
