@@ -37,8 +37,8 @@ unzip_in_parallel <- function(file_paths) {
       metadata_errors$execution_id <- execution_id
     }
     
-    execution_id <- stringi::stri_extract(target_file, regex="(?<=/async_tst/).*(?=\\.zip)")
-    summary_directory <- "/mnt/code/experiments/summary_tst"
+    execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*(?=\\.zip)")
+    summary_directory <- paste0(data_directory, "support-bundle-summary")
     summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
     
     if(!dir.exists(summary_directory)) {
@@ -60,6 +60,7 @@ unzip_in_parallel <- function(file_paths) {
   clusterExport(cl, "dest_dir")
   clusterExport(cl, "identify_support_bundle_errors")
   clusterExport(cl, 'regex_pattern_df')
+  clusterExport(cl, 'data_directory')
   clusterEvalQ(cl, {
     library(magrittr)
   })
@@ -194,22 +195,22 @@ headers <- c("X-Domino-Api-Key" = domino_user_api_key,
 
 
 #num_batches <- 
-x <- #ceiling(length(urls) / num_batches)
-x <- 125
+#ceiling(length(urls) / num_batches)
+x <- 120
 indices <- (seq_along(urls) - 1) %/% x + 1
 # Split the URLs based on the group numbers
 url_list <- split(urls, indices)
 
 a <- Sys.time()
 for (idx in seq_along(url_list)) {
-  url <- url_list[[idx]]
+  target_url <- url_list[[idx]]
   cat("Progress: ", base::round(idx/length(url_list)*100, 0), "%\n")
   cc <- crul::Async$new(
-    urls = url,
+    urls = target_url,
     headers = headers
   )
   
-  execution_ids <- sapply(url, function(singles) stringi::stri_extract(singles, regex="(?<=supportbundle\\/).*")) %>% as.vector()
+  execution_ids <- sapply(target_url, function(singles) stringi::stri_extract(singles, regex="(?<=supportbundle\\/).*")) %>% as.vector()
   
   support_bundle_dir <- paste0(data_directory, 'support-bundles/')
   if(!dir.exists(support_bundle_dir)) {
