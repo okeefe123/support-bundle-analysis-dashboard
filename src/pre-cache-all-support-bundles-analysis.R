@@ -1,7 +1,7 @@
 rm(list=ls())
 
 pkgs <- c("shiny", "shinydashboard", "DT", "digest", "data.table", "highcharter", "viridis", "shinyjs", "dplyr",
-          "stringi", "httr", "tools", "magrittr", "lubridate", "jsonlite", "shinycssloaders", "rintrojs", "shinyWidgets", "crul")
+          "stringi", "httr", "tools", "magrittr", "lubridate", "jsonlite", "shinycssloaders", "rintrojs", "shinyWidgets", "crul", "parallel")
 
 ipak <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
@@ -50,12 +50,12 @@ unzip_in_parallel <- function(file_paths) {
   }
   
   # Get the number of cores available
-  no_cores <- detectCores() - 1  # using one less to leave a core free
+  no_cores <- parallel::detectCores() - 1  # using one less to leave a core free
   
   # Use parLapply to unzip in parallel
   cl <- makeCluster(no_cores)
   
-  dest_dir <<- '/mnt/code/experiments/async_files'
+  dest_dir <<- paste0(data_directory, 'support-bundles')
   
   clusterExport(cl, "dest_dir")
   clusterExport(cl, "identify_support_bundle_errors")
@@ -64,6 +64,9 @@ unzip_in_parallel <- function(file_paths) {
     library(magrittr)
   })
   results <- parLapply(cl, file_paths, unzip_single) %>% do.call(rbind, .)
+  zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
+  # Delete the zip files
+  file.remove(zip_files)
   stopCluster(cl)
   
   return(results)
@@ -190,8 +193,9 @@ headers <- c("X-Domino-Api-Key" = domino_user_api_key,
              "accept" = "application/json")
 
 
-num_batches <- 10
-x <- ceiling(length(urls) / num_batches)
+#num_batches <- 
+x <- #ceiling(length(urls) / num_batches)
+x <- 125
 indices <- (seq_along(urls) - 1) %/% x + 1
 # Split the URLs based on the group numbers
 url_list <- split(urls, indices)
@@ -207,15 +211,15 @@ for (idx in seq_along(url_list)) {
   
   execution_ids <- sapply(url, function(singles) stringi::stri_extract(singles, regex="(?<=supportbundle\\/).*")) %>% as.vector()
   
-  async_dir <- "/mnt/code/experiments/async_tst/"
-  if(!dir.exists(async_dir)) {
-    dir.create(async_dir)
+  support_bundle_dir <- paste0(data_directory, 'support-bundles/')
+  if(!dir.exists(support_bundle_dir)) {
+    dir.create(support_bundle_dir)
   }
-  zip_paths <- paste0(async_dir, execution_ids,".zip")
+  zip_paths <- paste0(support_bundle_dir, execution_ids,".zip")
   res <- cc$get(disk=zip_paths)
   
   unzip_in_parallel(file_paths=zip_paths)
 }
 b <- Sys.time()
 
-b-a
+cat(b-a)
