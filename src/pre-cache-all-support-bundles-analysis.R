@@ -16,10 +16,12 @@ ipak <- function(pkg){
 
 ipak(pkgs)
 
-for(target_file in file_paths) {
-  cat("Target File: ", target_file, "\n")
-  unzip_single(target_file)
-}
+# final_output <- c()
+# for(target_file in file_paths) {
+#   cat("Target File: ", target_file, "\n")
+#   target_output <- unzip_single(target_file)
+#   final_output <- c(final_output, target_output)
+# }
 
 
 unzip_in_parallel <- function(file_paths) {
@@ -36,7 +38,21 @@ unzip_in_parallel <- function(file_paths) {
     }
 
     unzip(target_file, exdir = final_dest_dir)
-    metadata_errors <- identify_support_bundle_errors(file_paths=target_file, regex_pattern_df = regex_pattern_df)
+    final_dest_dir_files <- list.files(final_dest_dir, full.names=TRUE)
+    
+    if(length(final_dest_dir_files) > 0) {
+      metadata_errors <- identify_support_bundle_errors(file_paths=final_dest_dir_files, regex_pattern_df = regex_pattern_df)
+    } else {
+      metadata_errors <- data.frame(
+        Error = character(0),
+        Line_Number = integer(0),
+        Context = character(0),
+        Error_Type = character(0),
+        File_Path = character(0),
+        Date_Time = as.POSIXct(character(0)),  # assuming you want a datetime format
+        Node = character(0)
+      )
+    }
     
     execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*(?=\\.zip)")
     
