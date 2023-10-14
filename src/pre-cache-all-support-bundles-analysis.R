@@ -27,15 +27,15 @@ unzip_in_parallel <- function(file_paths) {
   # Function to unzip a single file
   unzip_single <- function(target_file) {
     # Extract the base name without the .zip extension
-    # base_name <- tools::file_path_sans_ext(basename(target_file))
-    # final_dest_dir <- file.path(dest_dir, base_name)
-    # 
-    # # Ensure the directory exists
-    # if (!dir.exists(final_dest_dir)) {
-    #   dir.create(final_dest_dir, recursive = TRUE)
-    # }
-    # 
-    # unzip(target_file, exdir = final_dest_dir)
+    base_name <- tools::file_path_sans_ext(basename(target_file))
+    final_dest_dir <- file.path(dest_dir, base_name)
+
+    # Ensure the directory exists
+    if (!dir.exists(final_dest_dir)) {
+      dir.create(final_dest_dir, recursive = TRUE)
+    }
+
+    unzip(target_file, exdir = final_dest_dir)
     metadata_errors <- identify_support_bundle_errors(file_paths=target_file, regex_pattern_df = regex_pattern_df)
     
     execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*(?=\\.zip)")
@@ -224,6 +224,8 @@ for (idx in seq_along(url_list)) {
   if(!dir.exists(support_bundle_dir)) {
     dir.create(support_bundle_dir)
   }
+  
+  
   zip_paths <- paste0(support_bundle_dir, execution_ids,".zip")
   res <- cc$get(disk=zip_paths)
   
