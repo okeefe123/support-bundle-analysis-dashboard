@@ -60,11 +60,11 @@ server <- function(input, output, session) {
   })
   
   output$status_multiselect_ui <- shiny::renderUI({
-    if(!is.null(usage_report_filters)) {
+    if(!is.null(precreated_usage_report_filters)) {
       div(class = "shiny-select-spacing",
           shiny::selectizeInput(inputId = "status_multiselect",
                                 label = "Workload Status",
-                                choices = c("All", setdiff(unlist(usage_report_filters$status), NA)),
+                                choices = c("All", setdiff(unlist(precreated_usage_report_filters$status), NA)),
                                 selected = c("Error", "Failed"),
                                 multiple = TRUE)
       )
@@ -72,11 +72,11 @@ server <- function(input, output, session) {
   })
   
   output$hardware_tier_multiselect_ui <- shiny::renderUI({
-    if(!is.null(usage_report_filters)) {
+    if(!is.null(precreated_usage_report_filters)) {
       div(class = "shiny-select-spacing",
           shiny::selectizeInput(inputId = "hardware_tier_multiselect",
                                 label = "Hardware Tier",
-                                choices = c("All", setdiff(unlist(usage_report_filters$hardware_tier), NA)),
+                                choices = c("All", setdiff(unlist(precreated_usage_report_filters$hardware_tier), NA)),
                                 selected = "All",
                                 multiple = TRUE)
       )
@@ -618,7 +618,7 @@ server <- function(input, output, session) {
               events = list(
                 click = JS("function() {
                   Shiny.setInputValue('clicked_target_col_val', this.target_col_unique);
-                  Shiny.setInputValue('clicked_target_col_date', this.timestamp)
+                  Shiny.setInputValue('clicked_target_col_date', this.timestamp);
                 }")
               )
             )
@@ -1501,7 +1501,6 @@ server <- function(input, output, session) {
   ##### UPLOAD TAB #####
   ##### ERROR REGEX MATCHING UPDATE TABLE #####
   
-  regex_df <- read.csv('./data/regex_lookup.csv')
   regex_reactive_df <- reactiveVal(regex_df)
   
   output$regex_lookup_dt <- DT::renderDT({
@@ -1577,7 +1576,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$save_table, {
-    write.csv(regex_reactive_df(), "./data/regex_lookup.csv", row.names = FALSE)
+    write.csv(regex_reactive_df(), paste0(data_directory, "regex_lookup.csv"), row.names = FALSE)
     
     # Triggers a "grayed out" back to a "normal" state so user knows that the click went through
     shinyjs::addClass(id="save_table", class="grayed-out-button", asis=TRUE)
@@ -1687,11 +1686,11 @@ server <- function(input, output, session) {
   })
   
   helptext <- reactive({
-    data.table(
+    tst <- data.table(
       btn  = c(
               rep("take_a_tour_resource_usage_btn", 6),
               rep("take_a_tour_bundle_summary_btn", 3),
-              rep("take_a_tour_bundle_upload_btn", 7)
+              rep("take_a_tour_bundle_upload_btn", 5)
               ),
       step = c(seq(6), seq(3), seq(5)),
       element = c("#usage_report_filters", 

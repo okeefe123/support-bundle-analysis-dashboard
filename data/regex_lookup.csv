@@ -13,4 +13,4 @@
 "domino","repository not found(.*)"
 "domino",".*message.*level=error.*"
 "user","TypeError:(.*)"
-"domino","java.lang.reflect.InaccessibleObjectException:"
+"tst","this is a test"

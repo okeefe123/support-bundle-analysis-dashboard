@@ -38,13 +38,13 @@ domino_user_api_key <- system("echo $DOMINO_USER_API_KEY", intern=TRUE)
 
 
 #### Precreate all the needed folders (for dependencies/data/etc...) ####
-if(!dir.exists('./data')) {
-  dir.create("./data")
-}
+# if(!dir.exists('./data')) {
+#   dir.create("./data")
+# }
 
 #### FOR FIRST RUN! ####
-# If the regex_lookup doesn't yet exist, create it out of predisscussed "default" patterns.
-if(!file.exists('./data/regex_lookup.csv')) {
+# If the regex_lookup doesn't yet exist, create it out of prediscussed "default" patterns.
+if(!file.exists(paste0(data_directory, 'regex_lookup.csv'))) {
 
   # Define Cluster error pattern
   cluster_error_pattern = c(
@@ -85,7 +85,9 @@ if(!file.exists('./data/regex_lookup.csv')) {
   
   regex_df <- rbind(cluster_df, domino_df, user_df)
   
-  write.csv(regex_df, "./data/regex_lookup.csv", row.names = FALSE)
+  write.csv(regex_df, paste0(data_directory, "regex_lookup.csv"), row.names = FALSE)
+} else {
+  regex_df <- read.csv(paste0(data_directory, "regex_lookup.csv"))
 }
 
 if(!dir.exists(paste0(data_directory, "support-bundles"))) {
@@ -99,9 +101,10 @@ if(!dir.exists(paste0(data_directory, "support-bundle-summaries"))) {
 if(!dir.exists(paste0(data_directory, "resource-usage-by-day"))) {
   dir.create(paste0(data_directory, "resource-usage-by-day"))
 }
+
 # Really only for first run.. Creates a bank of preselect filters for resource usage report based on the past two years of report data
 # Will be stored as .rds for any subsequent runs
-if(!file.exists("./data/usage_report_filter_options.rds")) {
+if(!file.exists(paste0(data_directory, "usage_report_filter_options.rds"))) {
   tst_url <- paste0("https://", domino_url, "/admin/generateUsageReport")
   
   start_date <- Sys.Date() - lubridate::years(2)
@@ -125,13 +128,13 @@ if(!file.exists("./data/usage_report_filter_options.rds")) {
   
   # Save out most recent schema for future pulls
   filter_options <- c("status", "hardware_tier")
-  usage_report_filters <- lapply(filter_options, function(col) {
+  precreated_usage_report_filters <- lapply(filter_options, function(col) {
     options <- unique(report_df[col])
   }) %>% stats::setNames(filter_options)
   
-  base::saveRDS(usage_report_filters, file = "./data/usage_report_filter_options.rds")
+  base::saveRDS(precreated_usage_report_filters, file = paste0(data_directory, "usage_report_filter_options.rds"))
 } else {
-  usage_report_filters <- base::readRDS('./data/usage_report_filter_options.rds')
+  precreated_usage_report_filters <- base::readRDS(paste0(data_directory, "usage_report_filter_options.rds"))
 }
 
 error_types <- c ("cluster", "domino", "user")
