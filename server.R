@@ -1585,7 +1585,7 @@ server <- function(input, output, session) {
   })
   
   
-  num_events <- 0.5
+  num_mins <- 0.5
   shiny::observeEvent(invalidateLater(1000 * 60 * num_mins), {
     # Every 30 minutes, create a backup of regex_reactive_df()
     regex_backups_dir <- paste0(data_directory, "regex_backups")
