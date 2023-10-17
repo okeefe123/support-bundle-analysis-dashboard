@@ -102,6 +102,9 @@ if(!dir.exists(paste0(data_directory, "resource-usage-by-day"))) {
   dir.create(paste0(data_directory, "resource-usage-by-day"))
 }
 
+if(!dir.exists(paste0(data_directory, "regex_backups"))) {
+  dir.create(paste0(data_directory, "regex_backups"))
+}
 # Really only for first run.. Creates a bank of preselect filters for resource usage report based on the past two years of report data
 # Will be stored as .rds for any subsequent runs
 if(!file.exists(paste0(data_directory, "usage_report_filter_options.rds"))) {

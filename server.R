@@ -1584,6 +1584,25 @@ server <- function(input, output, session) {
     shinyjs::removeClass(id="save_table", class="grayed-out-button", asis=TRUE)
   })
   
+  
+  num_events <- 0.5
+  shiny::observeEvent(invalidateLater(1000 * 60 * num_mins), {
+    # Every 30 minutes, create a backup of regex_reactive_df()
+    regex_backups_dir <- paste0(data_directory, "regex_backups")
+    write.csv(regex_reactive_df(), gsub(" ", "_", paste0(regex_backups_dir, "/", Sys.time(), ".csv")), row.names=FALSE)
+    
+    # Clear out any old regex saves that are older than a week.
+    days_to_keep <- 7
+    num_files <- days_to_keep * 24 * 60 / num_mins 
+    existing_files <- list.files(regex_backups_dir, full.names=TRUE)
+    if(length(existing_files) > num_files) {
+      files_to_delete <- sort(existing_files)[(num_files+1):length(existing_files)]
+      file.remove(files_to_delete)
+    }
+    
+     # Check every 30 minutes
+  })
+  
   # Function to get the list of files (to be used by reactivePoll)
   get_support_bundle_dirs <- function() {
     all_available_support_bundles <- list.files(paste0(data_directory, 'support-bundles/'))
