@@ -1013,6 +1013,76 @@ server <- function(input, output, session) {
         incProgress(1/length(download_list))
       }
       
+      
+      # execution_id <- download_list[1]
+      for (execution_id in download_list) {
+        # Done so that bundle summaries aren't recalculated
+        summary_directory <- paste0(data_directory, "support-bundle-summaries")
+        summary_file <- paste0(summary_directory, "/", execution_id, "-summary.csv")
+        if(file.exists(summary_file) & input$use_cached_analysis == TRUE) {
+          #browser()
+          metadata_errors <- read.csv(summary_file)
+          if(nrow(metadata_errors) > 0) {
+            metadata_errors$execution_id <- execution_id
+            output_df <- rbind(output_df, metadata_errors)
+          }
+          next
+        }
+        zip_url <- paste0("https://", domino_url, "/v4/admin/supportbundle/", execution_id)
+
+        bundle_root_directory <- paste0(data_directory, "support-bundles")
+        if(!dir.exists(bundle_root_directory)) {
+          dir.create(bundle_root_directory)
+        }
+
+        bundle_path <- paste0(bundle_root_directory, "/support-bundle-", execution_id)
+        if (!dir.exists(bundle_path)) {
+          dir.create(bundle_path)
+        } else {
+          unlink(paste0(bundle_path, "/*"), recursive = TRUE, force = TRUE)
+        }
+
+        headers <- c("X-Domino-Api-Key" = domino_user_api_key)
+        #response <- httr::GET(zip_url, add_headers(headers))
+
+        # Define the path to save the ZIP file
+        zip_file_path <- paste0(bundle_path, ".zip")  # Replace with the desired path
+        # Make the GET request and save the ZIP file
+        response <- GET(zip_url, add_headers(headers), write_disk(zip_file_path, overwrite = TRUE))
+
+        # Check if the request was successful
+        if (http_status(response)$category == "Success") {
+          print(paste("File has been saved to: ", zip_file_path))
+        } else {
+          print(paste("Failed to fetch URL: ", http_status(response)$message))
+          next
+        }
+
+        ###### 2. UNZIP THE FILE ######
+        file_paths <- unzip(zip_file_path, exdir = bundle_path)
+        file.remove(zip_file_path)
+
+        file_paths <- file_paths[grep("\\.json|\\.log", file_paths)]
+
+        #browser()
+        metadata_errors <- identify_support_bundle_errors(file_paths=file_paths, regex_pattern_df = regex_reactive_df())
+        if(nrow(metadata_errors) > 0) {
+          metadata_errors$execution_id <- execution_id
+          output_df <- rbind(output_df, metadata_errors)
+        }
+        ###### WRITE OUTPUT TO CSV ######
+        if(!dir.exists(summary_directory)) {
+          dir.create(summary_directory)
+        }
+        summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
+
+        write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
+
+        cat("Summary File Recorded at: ", summary_csv_path, "\n")
+        
+        incProgress(1/length(download_list))
+      }
+      
     })
     #################### END OF FOR LOOP ########################
     output_df$Execution_Status <- report_df()$status[match(output_df$execution_id, report_df()$run_id)]
@@ -1197,11 +1267,12 @@ server <- function(input, output, session) {
       largest_file <- stringi::stri_extract(largest_file, regex="(?<=/support-bundle-summaries/).*")
       support_bundle_csv_files(largest_file)
       
-      shiny::selectizeInput(inputId = "csv_file_dropdown",
+      shiny::selectInput(inputId = "csv_file_dropdown",
                             label = h5("Support Bundle Summary"),
                             choices = target_files,
                             selected = largest_file,
-                            multiple = FALSE)
+                            multiple = FALSE,
+                            selectize = TRUE)
     }
   })
   
@@ -1277,10 +1348,23 @@ server <- function(input, output, session) {
   output$time_series_chart <- renderHighchart({
     if(!is.null(df_time_series())) {
       
-      # Convert Date_Time to milliseconds
-      df <- df_time_series()
-      df$Date_Time <- as.POSIXct(df$Date_Time) %>% floor_date(., unit='sec')
-      dt <- data.table::data.table(df)
+      target_df <- df_time_series()
+      dt1 <- strptime(max(target_df$Date_Time, na.rm=TRUE), format="%Y-%m-%d %H:%M:%S")
+      dt2 <- strptime(min(target_df$Date_Time, na.rm=TRUE), format="%Y-%m-%d %H:%M:%S")
+      time_diff <- difftime(dt1, dt2, units="secs")
+      # If the largest break is minute, go in secs,
+      if(time_diff < 60*60) {
+        time_units <- "sec"
+      } else if (time_diff < 60*60*24) {
+        time_units <- "hour"
+      } else if (time_diff < 60*60*24*30) {
+        time_units <- "day"
+      }
+      # Else if the largest gap is hours, go mins,
+      # Else if the largest gap is days, go hours
+      #browser()
+      target_df$Date_Time <- as.POSIXct(target_df$Date_Time) %>% floor_date(., unit=time_units)
+      dt <- data.table::data.table(target_df)
       dt_agg <- dt[, .N, by=.(Error_Type, Date_Time)]
       
       # min_datetime <- dt[, .(min_date_time=min(Date_Time)), by=execution_id]
@@ -1288,9 +1372,10 @@ server <- function(input, output, session) {
       # names(map_to_date_time) <-  min_datetime$execution_id
       # dt$time_after_start <- as.numeric(dt$Date_Time) - as.numeric(map_to_date_time[dt$execution_id])
       
-      all_seconds <- seq(min(dt_agg$Date_Time), max(dt_agg$Date_Time), by = "1 sec") %>% floor_date(., unit='sec')
+      
+      time_interval <- seq(min(dt_agg$Date_Time), max(dt_agg$Date_Time), by = paste("1", time_units)) %>% floor_date(., unit=time_units)
       all_types <- unique(dt_agg$Error_Type)
-      all_poss <- data.table::CJ(Date_Time=all_seconds, Error_Type=all_types)
+      all_poss <- data.table::CJ(Date_Time=time_interval, Error_Type=all_types)
       
       dt_agg <- data.table::merge.data.table(dt_agg, all_poss, by=c("Date_Time", "Error_Type"), all.y=TRUE)
       dt_agg$N[which(is.na(dt_agg$N))] <- 0
@@ -1300,7 +1385,7 @@ server <- function(input, output, session) {
       dt_agg %>%
         hchart("line",
                hcaes(x=Date_Time, y=N, group=Error_Type)) %>%
-        hc_xAxis(type = 'datetime') %>%
+        hc_xAxis(title=list(text=paste0('Date (by ', tools::toTitleCase(time_units),')')), type = 'datetime') %>%
         hc_colors(viridis::viridis(length(unique(dt_agg$Error_Type)))) %>%
         hc_chart(zoomType = "x") %>%
         hc_title(text=paste("Errors Over Time"))
