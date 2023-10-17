@@ -992,7 +992,7 @@ server <- function(input, output, session) {
         file_paths <- unzip(zip_file_path, exdir = bundle_path)
         file.remove(zip_file_path)
 
-        file_paths <- file_paths[grep("\\.json|\\.log", file_paths)]
+        file_paths <- file_paths[grep("\\.json|\\.log|\\.txt", file_paths)]
 
         #browser()
         metadata_errors <- identify_support_bundle_errors(file_paths=file_paths, regex_pattern_df = regex_reactive_df())
