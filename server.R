@@ -992,7 +992,7 @@ server <- function(input, output, session) {
         file_paths <- unzip(zip_file_path, exdir = bundle_path)
         file.remove(zip_file_path)
 
-        file_paths <- file_paths[grep("\\.json|\\.log|\\.txt", file_paths)]
+        #file_paths <- file_paths[grep("\\.json|\\.log|\\.txt", file_paths)]
 
         #browser()
         metadata_errors <- identify_support_bundle_errors(file_paths=file_paths, regex_pattern_df = regex_reactive_df())
@@ -1585,11 +1585,12 @@ server <- function(input, output, session) {
   })
   
   
-  num_mins <- 0.5
-  shiny::observeEvent(invalidateLater(1000 * 60 * num_mins), {
+  shiny::observe({
+    num_mins <- 30
     # Every 30 minutes, create a backup of regex_reactive_df()
     regex_backups_dir <- paste0(data_directory, "regex_backups")
-    write.csv(regex_reactive_df(), gsub(" ", "_", paste0(regex_backups_dir, "/", Sys.time(), ".csv")), row.names=FALSE)
+    target_df <- shiny::isolate(regex_reactive_df())
+    write.csv(target_df, gsub(" ", "_", paste0(regex_backups_dir, "/", Sys.time(), ".csv")), row.names=FALSE)
     
     # Clear out any old regex saves that are older than a week.
     days_to_keep <- 7
@@ -1601,6 +1602,7 @@ server <- function(input, output, session) {
     }
     
      # Check every 30 minutes
+    invalidateLater(1000 * 60 * num_mins)
   })
   
   # Function to get the list of files (to be used by reactivePoll)
