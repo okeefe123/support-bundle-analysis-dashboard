@@ -24,24 +24,31 @@ ipak(pkgs)
 # }
 
 
-unzip_in_parallel <- function(file_paths) {
+unzip_create_summary_in_parallel <- function(file_paths) {
   
   # Function to unzip a single file
   unzip_single <- function(target_file) {
+    # Check to see if this file is a newly downloaded zip
+    is_zip <- grepl('\\.zip', target_file)
     # Extract the base name without the .zip extension
-    base_name <- tools::file_path_sans_ext(basename(target_file))
-    final_dest_dir <- file.path(dest_dir, base_name)
-
-    # Ensure the directory exists
-    if (!dir.exists(final_dest_dir)) {
-      dir.create(final_dest_dir, recursive = TRUE)
+    
+    if(is_zip) {
+      base_name <- tools::file_path_sans_ext(basename(target_file))
+      final_dest_dir <- file.path(dest_dir, base_name)
+  
+      # Ensure the directory exists
+      if (!dir.exists(final_dest_dir)) {
+        dir.create(final_dest_dir, recursive = TRUE)
+      }
+  
+      unzip(target_file, exdir = final_dest_dir)
+    } else {
+      final_dest_dir <- target_file
     }
-
-    unzip(target_file, exdir = final_dest_dir)
     final_dest_dir_files <- list.files(final_dest_dir, full.names=TRUE)
     
     if(length(final_dest_dir_files) > 0) {
-      metadata_errors <- identify_support_bundle_errors(file_paths=final_dest_dir_files, regex_pattern_df = regex_pattern_df)
+      metadata_errors <- identify_support_bundle_errors(file_paths=final_dest_dir_files, regex_pattern_df = regex_pattern_df) %>% base::suppressWarnings()
     } else {
       metadata_errors <- data.frame(
         Error = character(0),
@@ -54,7 +61,7 @@ unzip_in_parallel <- function(file_paths) {
       )
     }
     
-    execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*(?=\\.zip)")
+    execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*")
     
     if(nrow(metadata_errors) > 0) {
       cat("Hit! Target file: ", target_file, "\n")
@@ -181,7 +188,7 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
 domino_project_name <- "allstate_log_github"
 domino_url <- 'prod-field.cs.domino.tech'
 domino_user_api_key <- system("echo $DOMINO_USER_API_KEY", intern=TRUE)
-data_directory <- paste0("/mnt/data/", domino_project_name, "/")
+data_directory <- paste0("/mnt/data/", domino_project_name, "/test_dir/")
 
 
 
@@ -196,21 +203,20 @@ headers <- c(
   'Content-Type'= 'application/x-www-form-urlencoded',
   'X-Domino-Api-Key'= domino_user_api_key
 )
-#cat("Is the error here?\n")
-#cat(resource_usage_url, "\n")
+
 response <- httr::POST(url = resource_usage_url, body=payload, add_headers(headers))
-#cat("Or post getting the response?\n")
 plain_text <- base::rawToChar(response$content)
 report_values <- read.csv(textConnection(plain_text))
 
 
-download_list <- report_values$Run.id[which(report_values$Status %in% c("Failed", "Error"))]
+all_executions <- report_values$Run.id[which(report_values$Status %in% c("Failed", "Error"))]
 
+# The support bundle directories are names via their execution ids
 existing_bundles <- list.dirs(paste0(data_directory, "support-bundles/"), full.names=FALSE)
 #download_list <- list.dirs('/mnt/data/allstate_log_github/support-bundles/', full.names=FALSE)[1:1000]
 #download_list <- stringi::stri_extract(download_list, regex="(?<=support-bundle-).*")[2:length(download_list)]
-download_list <- setdiff(download_list, existing_bundles)
-regex_pattern_df <- read.csv('/mnt/code/data/regex_lookup.csv')
+download_list <- setdiff(all_executions, existing_bundles)
+regex_pattern_df <- read.csv(paste0(data_directory, 'regex_lookup.csv'))
 
 # Download the files via async
 urls <- paste0("https://", domino_url, "/v4/admin/supportbundle/", download_list)
@@ -244,10 +250,14 @@ for (idx in seq_along(url_list)) {
   
   zip_paths <- paste0(support_bundle_dir, execution_ids,".zip")
   res <- cc$get(disk=zip_paths)
-  
-  unzip_in_parallel(file_paths=zip_paths)
 }
 b <- Sys.time()
 
 b-a
+
+all_file_paths <- paste0(data_directory, "support-bundles/", all_executions)
+
+unzip_create_summary_in_parallel(file_paths=all_file_paths)
+
+
 
