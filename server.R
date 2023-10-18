@@ -956,18 +956,18 @@ server <- function(input, output, session) {
       no_cores <- parallel::detectCores() - 1  # using one less to leave a core free
       
       # Use parLapply to unzip in parallel
-      cl <- makeCluster(no_cores)
+      cl <- parallel::makeCluster(no_cores)
       dest_dir <<- paste0(data_directory, 'support-bundles')
       
-      clusterExport(cl, "dest_dir")
-      clusterExport(cl, "identify_support_bundle_errors")
-      clusterExport(cl, 'regex_pattern_df')
-      clusterExport(cl, 'data_directory')
-      clusterEvalQ(cl, {
+      parallel::clusterExport(cl, "dest_dir")
+      parallel::clusterExport(cl, "identify_support_bundle_errors")
+      parallel::clusterExport(cl, 'regex_pattern_df')
+      parallel::clusterExport(cl, 'data_directory')
+      parallel::clusterEvalQ(cl, {
         library(magrittr)
       })
-      out <- parLapply(cl, all_file_paths, unzip_single) %>% do.call(rbind, .)
-      stopCluster(cl)
+      out <- parallel::parLapply(cl, all_file_paths, unzip_single) %>% do.call(rbind, .)
+      parallel::stopCluster(cl)
       
       #browser()
       output_df <- rbind(output_df, out)

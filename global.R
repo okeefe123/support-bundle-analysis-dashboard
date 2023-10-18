@@ -9,7 +9,7 @@ data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 #### GLOBAL.R ####
 #cat("THIS IS THE CURRENT WORKING DIRECTORY:", getwd(), "\n")
 pkgs <- c("shiny", "shinydashboard", "DT", "digest", "data.table", "highcharter", "viridis", "shinyjs", "dplyr",
-          "stringi", "httr", "tools", "magrittr", "lubridate", "jsonlite", "shinycssloaders", "rintrojs", "shinyWidgets", "crul")
+          "stringi", "httr", "tools", "magrittr", "lubridate", "jsonlite", "shinycssloaders", "rintrojs", "shinyWidgets", "crul", "parallel")
 
 ipak <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
