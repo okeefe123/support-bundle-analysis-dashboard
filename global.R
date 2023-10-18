@@ -301,11 +301,12 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
 
 
 ####DOWNLOAD SUPPORT BUNDLES IN PARALLEL####
-unzip_regex_extraction_in_parallel <- function(file_paths, regex_pattern_df) {
+unzip_single <- function(target_file) {
+  # Check to see if this file is a newly downloaded zip
+  is_zip <- grepl('\\.zip', target_file)
+  # Extract the base name without the .zip extension
   
-  # Function to unzip a single file
-  unzip_single <- function(target_file) {
-    # Extract the base name without the .zip extension
+  if(is_zip) {
     base_name <- tools::file_path_sans_ext(basename(target_file))
     final_dest_dir <- file.path(dest_dir, base_name)
     
@@ -315,40 +316,39 @@ unzip_regex_extraction_in_parallel <- function(file_paths, regex_pattern_df) {
     }
     
     unzip(target_file, exdir = final_dest_dir)
-    metadata_errors <- identify_support_bundle_errors(file_paths=target_file, regex_pattern_df = regex_pattern_df)
-    
-    if(nrow(metadata_errors) > 0) {
-      metadata_errors$execution_id <- execution_id
-    }
-    
-    execution_id <- stringi::stri_extract(target_file, regex="(?<=/async_tst/).*(?=\\.zip)")
-    summary_directory <- paste0(data_directory, 'support-bundle-summaries')
-    summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
-    
-    if(!dir.exists(summary_directory)) {
-      dir.create(summary_directory)
-    }
-    write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
-    
-    return(metadata_errors)
+  } else {
+    final_dest_dir <- target_file
+  }
+  final_dest_dir_files <- list.files(final_dest_dir, full.names=TRUE)
+  
+  if(length(final_dest_dir_files) > 0) {
+    metadata_errors <- identify_support_bundle_errors(file_paths=final_dest_dir_files, regex_pattern_df = regex_pattern_df) %>% base::suppressWarnings()
+  } else {
+    metadata_errors <- data.frame(
+      Error = character(0),
+      Line_Number = integer(0),
+      Context = character(0),
+      Error_Type = character(0),
+      File_Path = character(0),
+      Date_Time = as.POSIXct(character(0)),  # assuming you want a datetime format
+      Node = character(0)
+    )
   }
   
-  # Get the number of cores available
-  no_cores <- detectCores() - 1  # using one less to leave a core free
+  execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*")
   
-  # Use parLapply to unzip in parallel
-  cl <- makeCluster(no_cores)
+  if(nrow(metadata_errors) > 0) {
+    cat("Hit! Target file: ", target_file, "\n")
+    metadata_errors$execution_id <- execution_id
+  }
   
-  dest_dir <<- paste0(data_directory, "support-bundles")
+  summary_directory <- paste0(data_directory, "support-bundle-summaries")
+  summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
   
-  clusterExport(cl, "dest_dir")
-  clusterExport(cl, "identify_support_bundle_errors")
-  clusterExport(cl, 'regex_pattern_df')
-  clusterEvalQ(cl, {
-    library(magrittr)
-  })
-  results <- parLapply(cl, file_paths, unzip_single) %>% do.call(rbind, .)
-  stopCluster(cl)
+  if(!dir.exists(summary_directory)) {
+    dir.create(summary_directory)
+  }
+  write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
   
-  return(results)
+  return(metadata_errors)
 }

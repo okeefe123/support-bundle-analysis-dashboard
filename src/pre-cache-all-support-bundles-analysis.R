@@ -251,13 +251,14 @@ for (idx in seq_along(url_list)) {
   zip_paths <- paste0(support_bundle_dir, execution_ids,".zip")
   res <- cc$get(disk=zip_paths)
 }
+
+
+all_file_paths <- list.files(paste0(data_directory, "support-bundles/"), full.names=TRUE)
+a <- Sys.time()
+out <- unzip_create_summary_in_parallel(file_paths=all_file_paths)
 b <- Sys.time()
 
-b-a
-
-all_file_paths <- paste0(data_directory, "support-bundles/", all_executions)
-
-unzip_create_summary_in_parallel(file_paths=all_file_paths)
 
 
+write.csv(out, '/mnt/data/allstate_log_github/error_analysis_all_time.csv', row.names=FALSE)
 

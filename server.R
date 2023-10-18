@@ -856,7 +856,7 @@ server <- function(input, output, session) {
     # }
     #cat("DOWNLOAD RUN ID LIST: ", paste0(download_list, collapse=", "), "\n")
     output_df <- data.frame()
-    
+    #browser()
     # urls <- paste0("https://", domino_url, "/v4/admin/supportbundle/", download_list)
     # if(length(urls) > 1000) {
     #   num_batches <- 10
@@ -869,219 +869,112 @@ server <- function(input, output, session) {
     # }
     
     # Now loop through each id, pull execution file, perform summary analysis
-    a <- Sys.time()
+    
     withProgress(message='Downloading and Extracting Bundle Summaries', detail="Please wait...", value=0, {
-      # for (idx in seq_along(url_list)) {
-      #   url <- url_list[[idx]]
-      #   cat("Progress: ", idx*10, "%\n")
-      #   cc <- crul::Async$new(
-      #     urls = url,
-      #     headers = headers
-      #   )
-      #   
-      #   execution_ids <- sapply(url, function(singles) stringi::stri_extract(singles, regex="(?<=supportbundle\\/).*")) %>% as.vector()
-      #   
-      #   async_dir <- "/mnt/code/experiments/async_tst/"
-      #   if(!dir.exists(async_dir)) {
-      #     dir.create(async_dir)
-      #   }
-      #   zip_paths <- paste0(async_dir, execution_ids,".zip")
-      #   res <- cc$get(disk=zip_paths)
-      #   
-      #   #browser()
-      #   #metadata_errors <- unzip_regex_extraction_in_parallel(file_paths=zip_paths, regex_pattern_df=regex_reactive_df())
-      #   ######### BEGINNING OF UNZIP REGEX EXTRACTION IN PARALLEL #########
-      #   # Function to unzip a single file
-      #   unzip_single <- function(target_file) {
-      #     # Extract the base name without the .zip extension
-      #     base_name <- tools::file_path_sans_ext(basename(target_file))
-      #     final_dest_dir <- file.path(dest_dir, base_name)
-      #     
-      #     # Ensure the directory exists
-      #     if (!dir.exists(final_dest_dir)) {
-      #       dir.create(final_dest_dir, recursive = TRUE)
-      #     }
-      #     
-      #     unzip(target_file, exdir = final_dest_dir)
-      #     metadata_errors <- identify_support_bundle_errors(file_paths=target_file, regex_pattern_df = regex_reactive_df_tmp)
-      #     
-      #     if(nrow(metadata_errors) > 0) {
-      #       metadata_errors$execution_id <- execution_id
-      #     }
-      #     
-      #     execution_id <- stringi::stri_extract(target_file, regex="(?<=/async_tst/).*(?=\\.zip)")
-      #     summary_directory <- paste0(data_directory, 'support-bundle-summaries')
-      #     summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
-      #     
-      #     if(!dir.exists(summary_directory)) {
-      #       dir.create(summary_directory)
-      #     }
-      #     write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
-      #     
-      #     return(metadata_errors)
-      #   }
-      #   
-      #   # Get the number of cores available
-      #   no_cores <- detectCores() - 2  # using one less to leave a core free
-      #   
-      #   # Use parLapply to unzip in parallel
-      #   cl <- makeCluster(no_cores)
-      #   
-      #   dest_dir <<- paste0(data_directory, "support-bundles")
-      #   regex_reactive_df_tmp <<- regex_reactive_df()
-      #   clusterExport(cl, "dest_dir")
-      #   clusterExport(cl, "identify_support_bundle_errors")
-      #   clusterExport(cl, 'regex_reactive_df_tmp')
-      #   clusterExport(cl, "data_directory")
-      #   clusterEvalQ(cl, {
-      #     library(magrittr)
-      #   })
-      #   metadata_errors <- parLapply(cl, zip_paths, unzip_single) %>% do.call(rbind, .)
-      #   stopCluster(cl)
-      #   ############################# END #################################
-      #   
-      #   output_df <- rbind(output_df, metadata_errors)
-      #   
-      #   incProgress(1/length(url_list))
-      # }
-      execution_id <- download_list[1]
-      for (execution_id in download_list) {
-        # Done so that bundle summaries aren't recalculated
-        summary_directory <- paste0(data_directory, "support-bundle-summaries")
-        summary_file <- paste0(summary_directory, "/", execution_id, "-summary.csv")
-        if(file.exists(summary_file) & input$use_cached_analysis == TRUE) {
-          #browser()
-          metadata_errors <- read.csv(summary_file)
-          if(nrow(metadata_errors) > 0) {
-            metadata_errors$execution_id <- execution_id
-            output_df <- rbind(output_df, metadata_errors)
-          }
-          next
-        }
-        zip_url <- paste0("https://", domino_url, "/v4/admin/supportbundle/", execution_id)
-
-        bundle_root_directory <- paste0(data_directory, "support-bundles")
-        if(!dir.exists(bundle_root_directory)) {
-          dir.create(bundle_root_directory)
-        }
-
-        bundle_path <- paste0(bundle_root_directory, "/support-bundle-", execution_id)
-        if (!dir.exists(bundle_path)) {
-          dir.create(bundle_path)
-        } else {
-          unlink(paste0(bundle_path, "/*"), recursive = TRUE, force = TRUE)
-        }
-
-        headers <- c("X-Domino-Api-Key" = domino_user_api_key)
-        #response <- httr::GET(zip_url, add_headers(headers))
-
-        # Define the path to save the ZIP file
-        zip_file_path <- paste0(bundle_path, ".zip")  # Replace with the desired path
-        # Make the GET request and save the ZIP file
-        response <- GET(zip_url, add_headers(headers), write_disk(zip_file_path, overwrite = TRUE))
-
-        # Check if the request was successful
-        if (http_status(response)$category == "Success") {
-          print(paste("File has been saved to: ", zip_file_path))
-        } else {
-          print(paste("Failed to fetch URL: ", http_status(response)$message))
-          next
-        }
-
-        ###### 2. UNZIP THE FILE ######
-        file_paths <- unzip(zip_file_path, exdir = bundle_path)
-        file.remove(zip_file_path)
-
-        #file_paths <- file_paths[grep("\\.json|\\.log|\\.txt", file_paths)]
-
-        #browser()
-        metadata_errors <- identify_support_bundle_errors(file_paths=file_paths, regex_pattern_df = regex_reactive_df())
-        if(nrow(metadata_errors) > 0) {
-          metadata_errors$execution_id <- execution_id
-          output_df <- rbind(output_df, metadata_errors)
-        }
-        ###### WRITE OUTPUT TO CSV ######
-        if(!dir.exists(summary_directory)) {
-          dir.create(summary_directory)
-        }
-        summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
-
-        write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
-
-        cat("Summary File Recorded at: ", summary_csv_path, "\n")
-
-        incProgress(1/length(download_list))
-      }
+      #.  ############# BEGINNING OF PARALLELIZED PROCESS ###################
+      output_df <- data.frame()
+      all_executions <- selected_execution_ids()#report_values$Run.id[which(report_values$Status %in% c("Failed", "Error"))]
       
-      
-      # execution_id <- download_list[1]
-      for (execution_id in download_list) {
-        # Done so that bundle summaries aren't recalculated
-        summary_directory <- paste0(data_directory, "support-bundle-summaries")
-        summary_file <- paste0(summary_directory, "/", execution_id, "-summary.csv")
-        if(file.exists(summary_file) & input$use_cached_analysis == TRUE) {
-          #browser()
-          metadata_errors <- read.csv(summary_file)
-          if(nrow(metadata_errors) > 0) {
-            metadata_errors$execution_id <- execution_id
-            output_df <- rbind(output_df, metadata_errors)
-          }
-          next
-        }
-        zip_url <- paste0("https://", domino_url, "/v4/admin/supportbundle/", execution_id)
-
-        bundle_root_directory <- paste0(data_directory, "support-bundles")
-        if(!dir.exists(bundle_root_directory)) {
-          dir.create(bundle_root_directory)
-        }
-
-        bundle_path <- paste0(bundle_root_directory, "/support-bundle-", execution_id)
-        if (!dir.exists(bundle_path)) {
-          dir.create(bundle_path)
-        } else {
-          unlink(paste0(bundle_path, "/*"), recursive = TRUE, force = TRUE)
-        }
-
-        headers <- c("X-Domino-Api-Key" = domino_user_api_key)
-        #response <- httr::GET(zip_url, add_headers(headers))
-
-        # Define the path to save the ZIP file
-        zip_file_path <- paste0(bundle_path, ".zip")  # Replace with the desired path
-        # Make the GET request and save the ZIP file
-        response <- GET(zip_url, add_headers(headers), write_disk(zip_file_path, overwrite = TRUE))
-
-        # Check if the request was successful
-        if (http_status(response)$category == "Success") {
-          print(paste("File has been saved to: ", zip_file_path))
-        } else {
-          print(paste("Failed to fetch URL: ", http_status(response)$message))
-          next
-        }
-
-        ###### 2. UNZIP THE FILE ######
-        file_paths <- unzip(zip_file_path, exdir = bundle_path)
-        file.remove(zip_file_path)
-
-        file_paths <- file_paths[grep("\\.json|\\.log", file_paths)]
-
+      #browser()
+      # Identify all of the already existing summary files, load them into output_df
+      # setdiff with all_executions for other downloads
+      if(dir.exists(paste0(data_directory, 'support-bundle-summaries')) & input$use_cached_analysis == TRUE) {
         #browser()
-        metadata_errors <- identify_support_bundle_errors(file_paths=file_paths, regex_pattern_df = regex_reactive_df())
-        if(nrow(metadata_errors) > 0) {
-          metadata_errors$execution_id <- execution_id
-          output_df <- rbind(output_df, metadata_errors)
-        }
-        ###### WRITE OUTPUT TO CSV ######
-        if(!dir.exists(summary_directory)) {
-          dir.create(summary_directory)
-        }
-        summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
-
-        write.csv(metadata_errors, summary_csv_path, row.names=FALSE)
-
-        cat("Summary File Recorded at: ", summary_csv_path, "\n")
+        all_existing_summaries <- list.files(paste0(data_directory, 'support-bundle-summaries'), full.names = TRUE)
+        all_existing_ids <- stringi::stri_extract(all_existing_summaries, regex="(?<=\\/support-bundle-summaries\\/).*(?=-summary.csv)")
         
-        incProgress(1/length(download_list))
+        target_existing_ids <- intersect(all_existing_ids, all_executions)
+        all_executions <- setdiff(all_executions, target_existing_ids)
+        
+        if(length(target_existing_ids) > 0) {
+          output_df <- lapply(target_existing_ids, function(target_id) {
+            output <- read.csv(paste0(data_directory, 'support-bundle-summaries/', target_id, '-summary.csv'))
+          }) %>% do.call(rbind, .)
+        }
       }
+      
+      
+      # THE NEXT FUTURE IMPLEMENTATION: Perform regex extraction again WITHOUT downloading old bundles again
+      already_existing_bundles <- list.files(paste0(data_directory, 'support-bundles'), full.names = FALSE)
+      existing_bundle_ids <- already_existing_bundles[!grepl("\\.zip", already_existing_bundles)]
+      relevant_existing_bundle_ids <- intersect(existing_bundle_ids, all_executions)
+      
+      # The support bundle directories are names via their execution ids
+      download_list <- setdiff(all_executions, relevant_existing_bundle_ids)
+      
+      
+      # Now avoid all the execution ids which already have support bundle zip files downloaded
+      
+      
+      regex_pattern_df <<- regex_reactive_df()
+      
+      # Download the files via async
+      urls <- paste0("https://", domino_url, "/v4/admin/supportbundle/", download_list)
+      headers <- c("X-Domino-Api-Key" = domino_user_api_key,
+                   "accept" = "application/json")
+      
+      
+      # Maximum number of connections is 128-3 (stdin/out/console) with 5 for wiggle room
+      x <- 120
+      indices <- (seq_along(urls) - 1) %/% x + 1
+      # Split the URLs based on the group numbers
+      url_list <- split(urls, indices)
+      
+      # Loop through each batch of urls, using crul to ansychronously make api calls
+      for (idx in seq_along(url_list)) {
+        target_url <- url_list[[idx]]
+        cat("Progress: ", base::round(idx/length(url_list)*100, 0), "%\n")
+        cc <- crul::Async$new(
+          urls = target_url,
+          headers = headers
+        )
+        
+        execution_ids <- sapply(target_url, function(singles) stringi::stri_extract(singles, regex="(?<=supportbundle\\/).*")) %>% as.vector()
+        
+        support_bundle_dir <- paste0(data_directory, 'support-bundles/')
+        if(!dir.exists(support_bundle_dir)) {
+          dir.create(support_bundle_dir)
+        }
+        
+        
+        zip_paths <- paste0(support_bundle_dir, execution_ids,".zip")
+        res <- cc$get(disk=zip_paths)
+      }
+      
+      incProgress(1/2)
+      
+      #browser()
+      if (input$use_cached_analysis == FALSE) {
+        download_list <- all_executions
+      }
+      all_file_paths <- paste0(data_directory, 'support-bundles/', download_list, '.zip')
+      all_file_paths <- all_file_paths[file.exists(all_file_paths)]
+      
+      #all_file_paths <- list.files(paste0(data_directory, "support-bundles/"), full.names=TRUE)
+      
+      # Get the number of cores available
+      no_cores <- parallel::detectCores() - 1  # using one less to leave a core free
+      
+      # Use parLapply to unzip in parallel
+      cl <- makeCluster(no_cores)
+      dest_dir <<- paste0(data_directory, 'support-bundles')
+      
+      clusterExport(cl, "dest_dir")
+      clusterExport(cl, "identify_support_bundle_errors")
+      clusterExport(cl, 'regex_pattern_df')
+      clusterExport(cl, 'data_directory')
+      clusterEvalQ(cl, {
+        library(magrittr)
+      })
+      out <- parLapply(cl, all_file_paths, unzip_single) %>% do.call(rbind, .)
+      stopCluster(cl)
+      
+      #browser()
+      output_df <- rbind(output_df, out)
+      #zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
+      # Delete the zip files
+      incProgress(1/2)
+      #   ############################# END #################################
       
     })
     #################### END OF FOR LOOP ########################
