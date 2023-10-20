@@ -1,6 +1,6 @@
 rm(list=ls())
 
-#### THESE CAN BE EDITED! ####
+#### THESE SHOULD BE EDITED! ####
 domino_project_name <- "allstate_log_github"
 domino_url <- 'prod-field.cs.domino.tech'
 data_directory <- paste0("/mnt/data/", domino_project_name, "/")
@@ -306,6 +306,7 @@ unzip_single <- function(target_file) {
   is_zip <- grepl('\\.zip', target_file)
   # Extract the base name without the .zip extension
   
+  # If it is, unzip into the /mnt/data/<project-name>/support-bundle/ directory named as its execution id
   if(is_zip) {
     base_name <- tools::file_path_sans_ext(basename(target_file))
     final_dest_dir <- file.path(dest_dir, base_name)
@@ -313,12 +314,13 @@ unzip_single <- function(target_file) {
     # Ensure the directory exists
     if (!dir.exists(final_dest_dir)) {
       dir.create(final_dest_dir, recursive = TRUE)
+      unzip(target_file, exdir = final_dest_dir)
     }
     
-    unzip(target_file, exdir = final_dest_dir)
   } else {
     final_dest_dir <- target_file
   }
+  
   final_dest_dir_files <- list.files(final_dest_dir, full.names=TRUE)
   
   if(length(final_dest_dir_files) > 0) {
@@ -336,12 +338,13 @@ unzip_single <- function(target_file) {
   }
   
   execution_id <- stringi::stri_extract(target_file, regex="(?<=/support-bundles/).*")
+  execution_id <- gsub("\\.zip", "", execution_id)
   
   if(nrow(metadata_errors) > 0) {
     cat("Hit! Target file: ", target_file, "\n")
     metadata_errors$execution_id <- execution_id
   }
-  
+
   summary_directory <- paste0(data_directory, "support-bundle-summaries")
   summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
   

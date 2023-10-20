@@ -966,6 +966,8 @@ server <- function(input, output, session) {
       parallel::clusterEvalQ(cl, {
         library(magrittr)
       })
+      
+      browser()
       out <- parallel::parLapply(cl, all_file_paths, unzip_single) %>% do.call(rbind, .)
       parallel::stopCluster(cl)
       
@@ -1153,7 +1155,7 @@ server <- function(input, output, session) {
     if(!is.null(fileList())) {
       target_files <- fileList()[grep("\\.csv", fileList())]
       names(target_files) <- stringi::stri_extract(target_files, regex=".*(?=-summary)")
-      #browser()
+
       support_bundle_summaries <- paste0(data_directory, "support-bundle-summaries/", fileList())
       file_sizes <- file.info(support_bundle_summaries)
       largest_file <- rownames(file_sizes)[which(file_sizes$size == max(file_sizes$size))]

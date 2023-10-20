@@ -101,6 +101,10 @@ ui <- shiny::fluidPage(
                   max-height: 250px !important;
                   overflow-y: auto !important;
                 }
+                
+                .selectize-input, .selectize-dropdown-content {
+                  font-size: 12px;
+                }
                ")
           ),
           tags$script("
