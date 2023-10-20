@@ -542,43 +542,58 @@ server <- function(input, output, session) {
   # Time series of running processes
   usage_time_series_df <- shiny::reactive({
     if(!is.null(report_df())){
-      df <- report_df()
-      df$started_time[which(is.na(df$started_time) | df$started_time == "")] <- df$queued_time[which(is.na(df$started_time) | df$started_time == "")]
-      df$started_time_hour <- lubridate::ymd_hms(df$started_time) %>% floor_date(., unit="hour")
-      df$completed_time_hour <- lubridate::ymd_hms(df$completed_time) %>% ceiling_date(., unit="hour")
-      df$time_diff <- df$completed_time_hour - df$started_time_hour
-      # df$run_type <- base::ifelse(
-      #                df$is_batch, "batch",
-      #                   base::ifelse(df$is_notebook, "notebook",
-      #                                   base::ifelse(df$is_endpoint, "endpoint", "unknown"))
+      #browser()
+      target_df <- report_df()
+      
+      dt1 <- strptime(max(na.omit(lubridate::ymd_hms(target_df$started_time))), format="%Y-%m-%d %H:%M:%S")
+      dt2 <- strptime(min(na.omit(lubridate::ymd_hms(target_df$completed_time))), format="%Y-%m-%d %H:%M:%S")
+      time_diff <- difftime(dt1, dt2, units="secs")
+      # If the largest break is minute, go in secs,
+      if(time_diff < 60*60*24*7) {
+        time_units <- "hour"
+        num_secs <- 60*60
+      } else {#if (time_diff < 60*60*24*30) {
+        time_units <- "day"
+        num_secs <- 60*60*24
+      }
+      
+      
+      target_df$started_time[which(is.na(target_df$started_time) | target_df$started_time == "")] <- target_df$queued_time[which(is.na(target_df$started_time) | target_df$started_time == "")]
+      target_df$started_time_rounded <- lubridate::ymd_hms(target_df$started_time) %>% floor_date(., unit= time_units)
+      target_df$completed_time_rounded <- lubridate::ymd_hms(target_df$completed_time) %>% ceiling_date(., unit= time_units)
+      target_df$time_diff <- target_df$completed_time_rounded - target_df$started_time_rounded
+      target_df$completed_time_rounded <- sapply(seq_along(target_df$completed_time_rounded), function(idx, time_units) {
+        time_diff <- target_df$time_diff[[idx]]
+        target_end <- target_df$completed_time_rounded[[idx]]
+        if(time_diff == 0) {
+          target_end <- target_end + lubridate::seconds(num_secs)
+        }
+        
+        return(target_end)
+      },
+      time_units=time_units) %>% as.POSIXct(.)
+      # target_df$time_diff <- base::ifelse(target_df$time_diff > 0, target_df$time_diff, 3600)
+      # target_df$run_type <- base::ifelse(
+      #                target_df$is_batch, "batch",
+      #                   base::ifelse(target_df$is_notebook, "notebook",
+      #                                   base::ifelse(target_df$is_endpoint, "endpoint", "unknown"))
       #                 )
       
-      dt <- data.table(df)
+      dt <- data.table(target_df)
       
-      start_time_agg <- dt[, .(start_count = .N), by=.(started_time_hour, target_col)]
-      complete_time_agg <- dt[, .(complete_count = .N), by=.(completed_time_hour, target_col)]
+      start_time_agg <- dt[, .(start_count = .N), by=.(started_time_rounded, target_col)]
+      complete_time_agg <- dt[, .(complete_count = .N), by=.(completed_time_rounded, target_col)]
       
-      # Still need to implement, but the chart click reactivity is now funky when we switch to days...
-      # dt1 <- strptime(max(na.omit(df$completed_time_hour)), format="%Y-%m-%d %H:%M:%S")
-      # dt2 <- strptime(min(na.omit(df$started_time_hour)), format="%Y-%m-%d %H:%M:%S")
-      # time_diff <- difftime(dt1, dt2, units="secs")
-      # # If the largest break is minute, go in secs,
-      # if(time_diff < 60*60*24*7) {
-      #   time_units <- "hour"
-      # } else {#if (time_diff < 60*60*24*30) {
-      #   time_units <- "day"
-      # }
-      time_units <- "hour"
       
-      date_time <- seq(min(na.omit(df$started_time_hour)), max(na.omit(df$completed_time_hour)), by=paste0("1 ", time_units))
+      date_time <- seq(min(na.omit(target_df$started_time_rounded)), max(na.omit(target_df$completed_time_rounded)), by=paste0("1 ", time_units))
       
-      target_col_unique <- as.vector(unname(unique(df$target_col)))
+      target_col_unique <- as.vector(unname(unique(target_df$target_col)))
       
-      #run_type <- unique(df$run_type)
+      #run_type <- unique(target_df$run_type)
       out <- data.table::CJ(date_time, target_col_unique)
       
-      out <- data.table::merge.data.table(out, start_time_agg, by.x=c("target_col_unique", "date_time"), by.y=c("target_col", "started_time_hour"), all.x = TRUE)
-      out <- data.table::merge.data.table(out, complete_time_agg, by.x=c("target_col_unique", "date_time"), by.y=c("target_col", "completed_time_hour"), all.x = TRUE)
+      out <- data.table::merge.data.table(out, start_time_agg, by.x=c("target_col_unique", "date_time"), by.y=c("target_col", "started_time_rounded"), all.x = TRUE)
+      out <- data.table::merge.data.table(out, complete_time_agg, by.x=c("target_col_unique", "date_time"), by.y=c("target_col", "completed_time_rounded"), all.x = TRUE)
       out[is.na(out)] <- 0
       
       target_col_partition <- split(out, out$target_col_unique)
@@ -663,23 +678,48 @@ server <- function(input, output, session) {
       #browser()
       #cat("Selected Date:", format(as.POSIXct(input$clicked_target_col_date/1000), format="%Y-%m-%dT%H:%M:%OS3Z"), "\n")
       target_timestamp <- input$clicked_target_col_date
-      df <- report_df()
-      df <- df[which(df$target_col == input$clicked_target_col_val),]
+      target_df <- report_df()
+      target_df <- target_df[which(target_df$target_col == input$clicked_target_col_val),]
       
-      df$started_timestamp_hour <- as.numeric(lubridate::ymd_hms(df$started_time) %>% floor_date(., unit="hour"))*1000
-      df$completed_timestamp_hour <- as.numeric(lubridate::ymd_hms(df$completed_time) %>% ceiling_date(., unit="hour"))*1000
-      df <- df[which(df$started_timestamp_hour <= target_timestamp & df$completed_timestamp_hour >= target_timestamp),]
+      dt1 <- strptime(max(na.omit(lubridate::ymd_hms(target_df$started_time))), format="%Y-%m-%d %H:%M:%S")
+      dt2 <- strptime(min(na.omit(lubridate::ymd_hms(target_df$completed_time))), format="%Y-%m-%d %H:%M:%S")
+      time_diff <- difftime(dt1, dt2, units="secs")
+      # If the largest break is minute, go in secs,
+      if(time_diff < 60*60*24*7) {
+        time_units <- "hour"
+        num_secs <- 60*60
+      } else {#if (time_diff < 60*60*24*30) {
+        time_units <- "day"
+        num_secs <- 60*60*24
+      }
       
-      df$started_timestamp_hour <- NULL
-      df$completed_timestamp_hour <- NULL
-      rownames(df) <- NULL
-      df <- df[, which(!(colnames(df) %in% c("date", "target_col")))]
+      target_df$started_timestamp_rounded <- as.numeric(lubridate::ymd_hms(target_df$started_time) %>% floor_date(., unit=time_units))*1000
+      target_df$completed_timestamp_rounded <- as.numeric(lubridate::ymd_hms(target_df$completed_time) %>% ceiling_date(., unit=time_units))*1000
+      
+      
+      target_df$completed_timestamp_rounded <- sapply(seq_along(target_df$completed_timestamp_rounded), function(idx, time_units) {
+        target_begin <- target_df$started_timestamp_rounded[[idx]]
+        target_end <- target_df$completed_timestamp_rounded[[idx]]
+        if(target_begin == target_end) {
+          target_end <- as.numeric(target_end/1000 + lubridate::seconds(num_secs))*1000
+        }
+        
+        return(target_end)
+      },
+      time_units=time_units)
+      
+      target_df <- target_df[which(target_df$started_timestamp_rounded <= target_timestamp & target_df$completed_timestamp_rounded > target_timestamp),]
+      
+      target_df$started_timestamp_rounded <- NULL
+      target_df$completed_timestamp_rounded <- NULL
+      rownames(target_df) <- NULL
+      target_df <- target_df[, which(!(colnames(target_df) %in% c("date", "target_col")))]
       first_cols <- c("run_id", "starting_user", "project_name", usage_filters$target_col)
-      last_cols <- setdiff(colnames(df), first_cols)
-      df <- df[,c(first_cols, last_cols)]
-      colnames(df) <- gsub("_", " ", colnames(df)) %>% tools::toTitleCase()
+      last_cols <- setdiff(colnames(target_df), first_cols)
+      target_df <- target_df[,c(first_cols, last_cols)]
+      colnames(target_df) <- gsub("_", " ", colnames(target_df)) %>% tools::toTitleCase()
       
-      replaceData(proxy, df, resetPaging = FALSE, rownames=FALSE)
+      replaceData(proxy, target_df, resetPaging = FALSE, rownames=FALSE)
       
       last_update("time_series")
     }
