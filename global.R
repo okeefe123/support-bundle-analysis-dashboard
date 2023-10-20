@@ -94,8 +94,8 @@ if(!dir.exists(paste0(data_directory, "support-bundles"))) {
   dir.create(paste0(data_directory, "support-bundles"))
 }
 
-if(!dir.exists(paste0(data_directory, "support-bundle-summaries"))) {
-  dir.create(paste0(data_directory, "support-bundle-summaries"))
+if(!dir.exists(paste0(data_directory, "support-bundle-summary"))) {
+  dir.create(paste0(data_directory, "support-bundle-summary"))
 }
 
 if(!dir.exists(paste0(data_directory, "resource-usage-by-day"))) {
@@ -345,7 +345,7 @@ unzip_single <- function(target_file) {
     metadata_errors$execution_id <- execution_id
   }
 
-  summary_directory <- paste0(data_directory, "support-bundle-summaries")
+  summary_directory <- paste0(data_directory, "support-bundle-summary")
   summary_csv_path <- paste0(summary_directory, "/", execution_id, "-summary.csv")
   
   if(!dir.exists(summary_directory)) {

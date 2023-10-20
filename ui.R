@@ -102,8 +102,8 @@ ui <- shiny::fluidPage(
                   overflow-y: auto !important;
                 }
                 
-                .selectize-input, .selectize-dropdown-content {
-                  font-size: 12px;
+                .selectize-input, .selectize-dropdown-content, .selectize-control {
+                  font-size: 14px;
                 }
                ")
           ),

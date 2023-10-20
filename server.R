@@ -6,7 +6,7 @@ server <- function(input, output, session) {
   
   # Function to get the list of files (to be used by reactivePoll)
   getDirList <- function() {
-    bundles_summary_directory <- paste0(data_directory, "support-bundle-summaries/")
+    bundles_summary_directory <- paste0(data_directory, "support-bundle-summary/")
     list.files(path = bundles_summary_directory)
   }
   
@@ -557,7 +557,20 @@ server <- function(input, output, session) {
       
       start_time_agg <- dt[, .(start_count = .N), by=.(started_time_hour, target_col)]
       complete_time_agg <- dt[, .(complete_count = .N), by=.(completed_time_hour, target_col)]
-      date_time <- seq(min(na.omit(df$started_time_hour)), max(na.omit(df$completed_time_hour)), by="1 hour")
+      
+      # Still need to implement, but the chart click reactivity is now funky when we switch to days...
+      # dt1 <- strptime(max(na.omit(df$completed_time_hour)), format="%Y-%m-%d %H:%M:%S")
+      # dt2 <- strptime(min(na.omit(df$started_time_hour)), format="%Y-%m-%d %H:%M:%S")
+      # time_diff <- difftime(dt1, dt2, units="secs")
+      # # If the largest break is minute, go in secs,
+      # if(time_diff < 60*60*24*7) {
+      #   time_units <- "hour"
+      # } else {#if (time_diff < 60*60*24*30) {
+      #   time_units <- "day"
+      # }
+      time_units <- "hour"
+      
+      date_time <- seq(min(na.omit(df$started_time_hour)), max(na.omit(df$completed_time_hour)), by=paste0("1 ", time_units))
       
       target_col_unique <- as.vector(unname(unique(df$target_col)))
       
@@ -592,15 +605,23 @@ server <- function(input, output, session) {
   
   output$rolling_count_running_processes_time_series <- highcharter::renderHighchart({
     if(!is.null(usage_time_series_df())) {
-      df <- usage_time_series_df()
-      #browser()
-      hc <- df %>%
+      target_df <- usage_time_series_df()
+      
+      # time_diff <- difftime(target_df$date_time[2], target_df$date_time[1], unit='hours')
+      # 
+      # if (time_diff = 1) {
+      #   time_unit <- "hours"
+      # } else if(time_diff == 24) {
+      #   time_unit <- "days"
+      # }
+      # browser()
+      hc <- target_df %>%
         hchart(
           "area",
           hcaes(x=timestamp, y=running_during_timestamp, group=target_col_unique, opacity=0.7),
           stacking="normal"
         ) %>%
-        hc_colors(viridis::viridis(length(unique(df$target_col_unique)))) %>%
+        hc_colors(viridis::viridis(length(unique(target_df$target_col_unique)))) %>%
         hc_title(text=paste0("Historical Runtimes")) %>%
         hc_xAxis(title=list(text='Date'),
                  type ="datetime", 
@@ -870,7 +891,7 @@ server <- function(input, output, session) {
     
     # Now loop through each id, pull execution file, perform summary analysis
     
-    withProgress(message='Downloading and Extracting Bundle Summaries', detail="Please wait...", value=0, {
+    withProgress(message='Downloading and Extracting Bundle summary', detail="Please wait...", value=0, {
       #.  ############# BEGINNING OF PARALLELIZED PROCESS ###################
       output_df <- data.frame()
       all_executions <- selected_execution_ids()#report_values$Run.id[which(report_values$Status %in% c("Failed", "Error"))]
@@ -878,17 +899,17 @@ server <- function(input, output, session) {
       #browser()
       # Identify all of the already existing summary files, load them into output_df
       # setdiff with all_executions for other downloads
-      if(dir.exists(paste0(data_directory, 'support-bundle-summaries')) & input$use_cached_analysis == TRUE) {
+      if(dir.exists(paste0(data_directory, 'support-bundle-summary')) & input$use_cached_analysis == TRUE) {
         #browser()
-        all_existing_summaries <- list.files(paste0(data_directory, 'support-bundle-summaries'), full.names = TRUE)
-        all_existing_ids <- stringi::stri_extract(all_existing_summaries, regex="(?<=\\/support-bundle-summaries\\/).*(?=-summary.csv)")
+        all_existing_summary <- list.files(paste0(data_directory, 'support-bundle-summary'), full.names = TRUE)
+        all_existing_ids <- stringi::stri_extract(all_existing_summary, regex="(?<=\\/support-bundle-summary\\/).*(?=-summary.csv)")
         
         target_existing_ids <- intersect(all_existing_ids, all_executions)
         all_executions <- setdiff(all_executions, target_existing_ids)
         
         if(length(target_existing_ids) > 0) {
           output_df <- lapply(target_existing_ids, function(target_id) {
-            output <- read.csv(paste0(data_directory, 'support-bundle-summaries/', target_id, '-summary.csv'))
+            output <- read.csv(paste0(data_directory, 'support-bundle-summary/', target_id, '-summary.csv'))
           }) %>% do.call(rbind, .)
         }
       }
@@ -902,14 +923,17 @@ server <- function(input, output, session) {
       # The support bundle directories are names via their execution ids
       download_list <- setdiff(all_executions, relevant_existing_bundle_ids)
       
-      
       # Now avoid all the execution ids which already have support bundle zip files downloaded
       
       
       regex_pattern_df <<- regex_reactive_df()
       
       # Download the files via async
-      urls <- paste0("https://", domino_url, "/v4/admin/supportbundle/", download_list)
+      if (length(download_list) > 0) {
+        urls <- paste0("https://", domino_url, "/v4/admin/supportbundle/", download_list)
+      } else {
+        urls <- list()
+      }
       headers <- c("X-Domino-Api-Key" = domino_user_api_key,
                    "accept" = "application/json")
       
@@ -947,9 +971,18 @@ server <- function(input, output, session) {
       if (input$use_cached_analysis == FALSE) {
         download_list <- all_executions
       }
-      all_file_paths <- paste0(data_directory, 'support-bundles/', download_list, '.zip')
-      all_file_paths <- all_file_paths[file.exists(all_file_paths)]
       
+      if(length(download_list) > 0) {
+        all_file_paths <- paste0(data_directory, 'support-bundles/', download_list, '.zip')
+        all_file_paths <- all_file_paths[file.exists(all_file_paths)]
+      } else {
+        all_file_paths <- c()
+      }
+      
+      if(length(relevant_existing_bundle_ids) > 0) {
+        bundle_paths <- paste0(data_directory, 'support-bundles/', relevant_existing_bundle_ids)
+        all_file_paths <- c(all_file_paths, bundle_paths)
+      }
       #all_file_paths <- list.files(paste0(data_directory, "support-bundles/"), full.names=TRUE)
       
       # Get the number of cores available
@@ -967,7 +1000,7 @@ server <- function(input, output, session) {
         library(magrittr)
       })
       
-      browser()
+      #browser()
       out <- parallel::parLapply(cl, all_file_paths, unzip_single) %>% do.call(rbind, .)
       parallel::stopCluster(cl)
       
@@ -1156,10 +1189,10 @@ server <- function(input, output, session) {
       target_files <- fileList()[grep("\\.csv", fileList())]
       names(target_files) <- stringi::stri_extract(target_files, regex=".*(?=-summary)")
 
-      support_bundle_summaries <- paste0(data_directory, "support-bundle-summaries/", fileList())
-      file_sizes <- file.info(support_bundle_summaries)
+      support_bundle_summary <- paste0(data_directory, "support-bundle-summary/", fileList())
+      file_sizes <- file.info(support_bundle_summary)
       largest_file <- rownames(file_sizes)[which(file_sizes$size == max(file_sizes$size))]
-      largest_file <- stringi::stri_extract(largest_file, regex="(?<=/support-bundle-summaries/).*")
+      largest_file <- stringi::stri_extract(largest_file, regex="(?<=/support-bundle-summary/).*")
       support_bundle_csv_files(largest_file)
       
       shiny::selectInput(inputId = "csv_file_dropdown",
@@ -1242,7 +1275,6 @@ server <- function(input, output, session) {
   
   output$time_series_chart <- renderHighchart({
     if(!is.null(df_time_series())) {
-      
       target_df <- df_time_series()
       dt1 <- strptime(max(target_df$Date_Time, na.rm=TRUE), format="%Y-%m-%d %H:%M:%S")
       dt2 <- strptime(min(target_df$Date_Time, na.rm=TRUE), format="%Y-%m-%d %H:%M:%S")
@@ -1252,7 +1284,7 @@ server <- function(input, output, session) {
         time_units <- "sec"
       } else if (time_diff < 60*60*24) {
         time_units <- "hour"
-      } else if (time_diff < 60*60*24*30) {
+      } else {#if (time_diff < 60*60*24*30) {
         time_units <- "day"
       }
       # Else if the largest gap is hours, go mins,
@@ -1288,10 +1320,11 @@ server <- function(input, output, session) {
   })
   
   support_bundle_df <- shiny::reactive({
-    if(!is.null(support_bundle_csv_files())) {
+    if(!is.null(support_bundle_csv_files()) & support_bundle_csv_files() != "") {
+      #browser()
       support_bundle_df <- lapply(support_bundle_csv_files(), function(target_file) {
         #cat("READING IN THE FOLLOWING FILE: ", target_file, "\n")
-        df <- read.csv(paste0(data_directory, "support-bundle-summaries/", target_file))
+        df <- read.csv(paste0(data_directory, "support-bundle-summary/", target_file))
         return(df)
       }) %>% do.call(rbind, .)
       
