@@ -44,3 +44,12 @@ examine these refs and maybe delete them. Turn this message off by
 running "git config advice.objectNameWarning false"
 2023-10-27 20:04:38.433 [info] > git status -z -uall [9ms]
 2023-10-27 20:04:38.433 [info] > git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname) [1ms]
+2023-10-27 20:04:44.231 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [1ms]
+2023-10-27 20:04:44.251 [info] > git status -z -uall [11ms]
+2023-10-27 20:04:44.252 [info] > git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname) [1ms]
+2023-10-27 20:04:49.266 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [1ms]
+2023-10-27 20:04:49.285 [info] > git status -z -uall [11ms]
+2023-10-27 20:04:49.285 [info] > git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname) [2ms]
+2023-10-27 20:04:49.868 [info] > git show --textconv :machine_learning/log_error_classifier.py [11ms]
+2023-10-27 20:04:49.868 [info] > git ls-files --stage -- /mnt/code/machine_learning/log_error_classifier.py [2ms]
+2023-10-27 20:04:49.878 [info] > git cat-file -s e70eedaa08455ae17a53143e2b178083fcce0c9b [1ms]
