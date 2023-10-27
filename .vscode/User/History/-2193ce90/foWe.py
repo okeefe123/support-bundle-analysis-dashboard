@@ -38,6 +38,16 @@ class HuggingFaceClassifier:
         self.model.eval()
 
     def train(self, df, epochs=3, batch_size=8, learning_rate=5e-5, warmup_steps=0):
+        """
+        df: Dataframe with the schema 
+        """
+        
+        
+        # Convert texts and labels to tensors
+        # inputs = self.tokenizer(texts, truncation=True, padding=True, max_length=512)
+        # input_ids = inputs["input_ids"]
+        # attention_mask = inputs["attention_mask"]
+        # labels = torch.tensor(labels).to(self.device)
         
         # Create a DataLoader
         dataset_logs = Dataset.from_pandas(df)

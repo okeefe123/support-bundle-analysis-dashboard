@@ -2,6 +2,7 @@ import os
 import random
 import pandas as pd
 from typing import Optional
+from datetime import datetime
 
 from sklearn.model_selection import train_test_split
 from datasets import Dataset, DatasetDict
@@ -9,6 +10,8 @@ from datasets import Dataset, DatasetDict
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import AdamW, AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
+
+
 
 
 class HuggingFaceClassifier:
@@ -23,12 +26,12 @@ class HuggingFaceClassifier:
         """
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
-        
+        self.tokenizer = AutoTokenizer.from_pretrained(path_or_pretrained)
+
         if num_labels is not None:
-            self.model = AutoModelForSequenceClassification.from_pretrained(model_path, num_labels = num_labels)
+            self.model = AutoModelForSequenceClassification.from_pretrained(path_or_pretrained, num_labels = num_labels)
         else:
-            self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
+            self.model = AutoModelForSequenceClassification.from_pretrained(path_or_pretrained)
         
         self.model.to(self.device)
         self.model.eval()
@@ -47,7 +50,7 @@ class HuggingFaceClassifier:
         
         # Create a DataLoader
         dataset_logs = Dataset.from_pandas(df)
-        tokenized_datasets_logs = dataset_logs.map(self.tokenizer(df['text'], padding="max_length", truncation=True))
+        tokenized_datasets_logs = dataset_logs.map(self._tokenize_function)
         tokenized_datasets_logs = tokenized_datasets_logs.remove_columns(["text"])
         tokenized_datasets_logs = tokenized_datasets_logs.rename_column("label", "labels")
         tokenized_datasets_logs.set_format("torch")
@@ -64,8 +67,8 @@ class HuggingFaceClassifier:
         self.model.train()
         for epoch in range(epochs):
             for batch in train_dataloader_logs:
-                batch = {k: v.to(device) for k, v in batch.items()}
-                outputs = model(**batch)
+                batch = {k: v.to(self.device) for k, v in batch.items()}
+                outputs = self.model(**batch)
                 loss = outputs.loss
                 loss.backward()
 
@@ -89,12 +92,21 @@ class HuggingFaceClassifier:
         self.model.eval()
 
     def save_model(self, path: str):
+        self.model.save_pretrained(model_directory)
+        self.tokenizer.save_pretrained(model_directory)
         
-        
-    def predict(self, text: str):
-        # Transform json to tensor
+    def predict(self, texts: List[str]):
+        """
+        Transform a batch of texts to tensors and get predictions
+        """
 
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
+        # Ensure texts is a list. If a single string is passed, convert it into a list.
+        if isinstance(texts, str):
+            texts = [texts]
+
+        # Tokenize the batch of texts
+        inputs = self.tokenizer(texts, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
+
         for key, value in inputs.items():
             inputs[key] = value.to(self.device)
 
@@ -102,9 +114,12 @@ class HuggingFaceClassifier:
             outputs = self.model(**inputs)
             logits = outputs.logits
             probs = torch.nn.functional.softmax(logits, dim=-1)
-            predicted_class = torch.argmax(probs, dim=-1).item()
+            predicted_classes = torch.argmax(probs, dim=-1).tolist()
 
-        return predicted_class, probs[0].cpu().numpy()
+        return predicted_classes, probs.cpu().numpy()
+
+    def _tokenize_function(self, df):
+        return self.tokenizer(df['text'], padding="max_length", truncation=True)
 
 # Usage example:
 # model_name = "path_or_model_identifier"
@@ -113,21 +128,28 @@ class HuggingFaceClassifier:
 # predicted_class, class_probs = classifier.predict("Your text here")
 # print(f"Predicted class: {predicted_class}, Class probabilities: {class_probs}")
 if __name__ == "__main__":
-    model_name = "bert-base-cased"
-    classifier = HuggingFaceClassifier(model_name)
+    #path_or_pretrained = "bert-base-cased"
+    base_dir = '/mnt/artifacts/models'
+
+    path_or_pretrained = os.path.join(base_dir, os.listdir(base_dir)[1])
+    classifier = HuggingFaceClassifier(path_or_pretrained)
     
     project_name = 'allstate_log_github'
     data_directory = '/mnt/data/' + project_name + '/'
 
     dir_name = os.path.join(data_directory, 'classification_data')
     df_train = pd.read_csv(os.path.join(dir_name, "train_small.csv"))
+    df_train = df_train[1:100]
     df_test = pd.read_csv(os.path.join(dir_name, "test_small.csv"))
     
     unique_labels = df_train['label'].unique()
     text_to_label = {'none':0, 'cluster':1, 'domino':2, 'user':3}
-    label_to_text = {str(label):text for text, label in label_to_text.items()}
+    label_to_text = {str(label):text for text, label in text_to_label.items()}
     
     df_train['label'] = df_train['label'].apply(lambda x: text_to_label[x])
     df_test['label'] = df_test['label'].apply(lambda x: text_to_label[x])
     
-    classifier.train(df_train)
+
+
+
+    classifier.predict(df_test)

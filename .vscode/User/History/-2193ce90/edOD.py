@@ -38,6 +38,16 @@ class HuggingFaceClassifier:
         self.model.eval()
 
     def train(self, df, epochs=3, batch_size=8, learning_rate=5e-5, warmup_steps=0):
+        """
+        df: Dataframe with the schema 
+        """
+        
+        
+        # Convert texts and labels to tensors
+        # inputs = self.tokenizer(texts, truncation=True, padding=True, max_length=512)
+        # input_ids = inputs["input_ids"]
+        # attention_mask = inputs["attention_mask"]
+        # labels = torch.tensor(labels).to(self.device)
         
         # Create a DataLoader
         dataset_logs = Dataset.from_pandas(df)
@@ -66,6 +76,18 @@ class HuggingFaceClassifier:
                 optimizer.step()
                 scheduler.step()
                 optimizer.zero_grad()
+#                 batch = tuple(t.to(self.device) for t in batch)
+#                 b_input_ids, b_attention_mask, b_labels = batch
+
+#                 # Forward pass
+#                 outputs = self.model(b_input_ids, attention_mask=b_attention_mask, labels=b_labels)
+#                 loss = outputs.loss
+
+#                 # Backward pass
+#                 optimizer.zero_grad()
+#                 loss.backward()
+#                 optimizer.step()
+#                 scheduler.step()
 
         # Set model back to evaluation mode
         self.model.eval()
@@ -111,6 +133,11 @@ class HuggingFaceClassifier:
         return self.tokenizer(df['text'], padding="max_length", truncation=True)
 
 # Usage example:
+# model_name = "path_or_model_identifier"
+# classifier = HuggingFaceClassifier(model_name)
+# classifier.train(texts=["sample text 1", "sample text 2"], labels=[0, 1])
+# predicted_class, class_probs = classifier.predict("Your text here")
+# print(f"Predicted class: {predicted_class}, Class probabilities: {class_probs}")
 if __name__ == "__main__":
     #path_or_pretrained = "bert-base-cased"
     base_dir = '/mnt/artifacts/models'
@@ -137,6 +164,6 @@ if __name__ == "__main__":
     text = df_test['text'].to_list()
 
     predictions = classifier.predict(text)
-
+    
     print("The predictions have been done!")
 

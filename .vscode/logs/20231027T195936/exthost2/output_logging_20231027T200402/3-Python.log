@@ -16,3 +16,33 @@ Python interpreter path: /opt/conda/bin/python
 > conda run -n base --no-capture-output python ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py
 > /opt/conda/bin/python -I ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
 Starting Jedi language server for code.
+> conda info --json
+Send text to terminal: source /opt/conda/bin/activate base
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+> conda info --json
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 44999 -- /mnt/code/machine_learning/log_error_classifier.py 
+Send text to terminal:  /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 39497 -- /mnt/code/machine_learning/log_error_classifier.py 
+Send text to terminal: source /opt/conda/bin/activate base
+Send text to terminal: source /opt/conda/bin/activate base
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 40719 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 53721 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 36993 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 36033 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 37543 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 54867 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 45389 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 53191 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 49393 -- /mnt/code/machine_learning/log_error_classifier.py 

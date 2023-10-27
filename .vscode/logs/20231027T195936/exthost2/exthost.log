@@ -16,3 +16,8 @@
 2023-10-27 20:04:04.374 [info] ExtensionService#_doActivateExtension ms-python.python, startup: false, activationEvent: 'onLanguage:python'
 2023-10-27 20:04:04.606 [info] ExtensionService#_doActivateExtension vscode.github-authentication, startup: false, activationEvent: 'onAuthenticationRequest:github'
 2023-10-27 20:04:30.100 [info] Lock '/mnt/code/.vscode/User/workspaceStorage/41f8cd8a/vscode.lock': The lock was lost unexpectedly.
+2023-10-27 20:09:12.781 [info] ExtensionService#_doActivateExtension vscode.debug-server-ready, startup: false, activationEvent: 'onDebugResolve'
+2023-10-27 20:13:21.396 [error] Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)
+2023-10-27 20:22:34.092 [error] Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)

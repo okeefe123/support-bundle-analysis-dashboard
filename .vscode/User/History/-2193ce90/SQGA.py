@@ -1,8 +1,7 @@
 import os
 import random
 import pandas as pd
-import numpy as np
-from typing import Optional, List, Tuple
+from typing import Optional
 from datetime import datetime
 
 from sklearn.model_selection import train_test_split
@@ -38,6 +37,16 @@ class HuggingFaceClassifier:
         self.model.eval()
 
     def train(self, df, epochs=3, batch_size=8, learning_rate=5e-5, warmup_steps=0):
+        """
+        df: Dataframe with the schema 
+        """
+        
+        
+        # Convert texts and labels to tensors
+        # inputs = self.tokenizer(texts, truncation=True, padding=True, max_length=512)
+        # input_ids = inputs["input_ids"]
+        # attention_mask = inputs["attention_mask"]
+        # labels = torch.tensor(labels).to(self.device)
         
         # Create a DataLoader
         dataset_logs = Dataset.from_pandas(df)
@@ -66,6 +75,18 @@ class HuggingFaceClassifier:
                 optimizer.step()
                 scheduler.step()
                 optimizer.zero_grad()
+#                 batch = tuple(t.to(self.device) for t in batch)
+#                 b_input_ids, b_attention_mask, b_labels = batch
+
+#                 # Forward pass
+#                 outputs = self.model(b_input_ids, attention_mask=b_attention_mask, labels=b_labels)
+#                 loss = outputs.loss
+
+#                 # Backward pass
+#                 optimizer.zero_grad()
+#                 loss.backward()
+#                 optimizer.step()
+#                 scheduler.step()
 
         # Set model back to evaluation mode
         self.model.eval()
@@ -74,7 +95,7 @@ class HuggingFaceClassifier:
         self.model.save_pretrained(model_directory)
         self.tokenizer.save_pretrained(model_directory)
         
-    def predict(self, texts: List[str], batch_size: int = 32) -> Tuple[List[int], np.ndarray]:
+    def predict(self, texts: List[str]):
         """
         Transform a batch of texts to tensors and get predictions
         """
@@ -83,40 +104,35 @@ class HuggingFaceClassifier:
         if isinstance(texts, str):
             texts = [texts]
 
-        all_predicted_classes = []
-        all_probs = []
+        # Tokenize the batch of texts
+        inputs = self.tokenizer(texts, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
 
-        # Split texts into smaller batches and predict
-        for i in range(0, len(texts), batch_size):
-            batch_texts = texts[i: i + batch_size]
-            
-            # Tokenize the batch of texts
-            inputs = self.tokenizer(batch_texts, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
+        for key, value in inputs.items():
+            inputs[key] = value.to(self.device)
 
-            for key, value in inputs.items():
-                inputs[key] = value.to(self.device)
+        with torch.no_grad():
+            outputs = self.model(**inputs)
+            logits = outputs.logits
+            probs = torch.nn.functional.softmax(logits, dim=-1)
+            predicted_classes = torch.argmax(probs, dim=-1).tolist()
 
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-                logits = outputs.logits
-                probs = torch.nn.functional.softmax(logits, dim=-1)
-                predicted_classes = torch.argmax(probs, dim=-1).tolist()
-
-            all_predicted_classes.extend(predicted_classes)
-            all_probs.append(probs.cpu().numpy())
-
-        return all_predicted_classes, np.concatenate(all_probs, axis=0)
+        return predicted_classes, probs.cpu().numpy()
 
     def _tokenize_function(self, df):
         return self.tokenizer(df['text'], padding="max_length", truncation=True)
 
 # Usage example:
+# model_name = "path_or_model_identifier"
+# classifier = HuggingFaceClassifier(model_name)
+# classifier.train(texts=["sample text 1", "sample text 2"], labels=[0, 1])
+# predicted_class, class_probs = classifier.predict("Your text here")
+# print(f"Predicted class: {predicted_class}, Class probabilities: {class_probs}")
 if __name__ == "__main__":
     #path_or_pretrained = "bert-base-cased"
     base_dir = '/mnt/artifacts/models'
 
-    path_or_pretrained = os.path.join(base_dir, os.listdir(base_dir)[1])
-    classifier = HuggingFaceClassifier(path_or_pretrained)
+    path_or_ = os.path.join(base_dir, os.listdir(base_dir)[1])
+    classifier = HuggingFaceClassifier(path_or_pretrained, num_labels=4)
     
     project_name = 'allstate_log_github'
     data_directory = '/mnt/data/' + project_name + '/'
@@ -133,10 +149,4 @@ if __name__ == "__main__":
     df_train['label'] = df_train['label'].apply(lambda x: text_to_label[x])
     df_test['label'] = df_test['label'].apply(lambda x: text_to_label[x])
     
-
-    text = df_test['text'].to_list()
-
-    predictions = classifier.predict(text)
-
-    print("The predictions have been done!")
-
+    classifier.train(df_train)
