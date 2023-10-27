@@ -92,6 +92,8 @@ class HuggingFaceClassifier:
         
         
     def predict(self, text: str):
+        # Transform json to tensor
+        
         inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
         for key, value in inputs.items():
             inputs[key] = value.to(self.device)
@@ -129,4 +131,3 @@ if __name__ == "__main__":
     df_test['label'] = df_test['label'].apply(lambda x: text_to_label[x])
     
     classifier.train(df_train)
-    
