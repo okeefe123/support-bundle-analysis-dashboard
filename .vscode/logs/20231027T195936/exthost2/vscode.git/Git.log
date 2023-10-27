@@ -31,3 +31,16 @@
 2023-10-27 20:04:33.379 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/a218d59badfb88da337f3476a41a425182b6ef8f refs/remotes/a218d59badfb88da337f3476a41a425182b6ef8f [0ms]
 2023-10-27 20:04:33.398 [info] > git status -z -uall [11ms]
 2023-10-27 20:04:33.399 [info] > git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname) [2ms]
+2023-10-27 20:04:38.413 [info] > git for-each-ref --format=%(refname)%00%(upstream:short)%00%(objectname)%00%(upstream:track)%00%(upstream:remotename)%00%(upstream:remoteref) refs/heads/main refs/remotes/main [1ms]
+2023-10-27 20:04:38.413 [info] warning: refname 'a218d59badfb88da337f3476a41a425182b6ef8f' is ambiguous.
+Git normally never creates a ref that ends with 40 hex characters
+because it will be ignored when you just specify 40-hex. These refs
+may be created by mistake. For example,
+
+  git switch -c $br $(git rev-parse ...)
+
+where "$br" is somehow empty and a 40-hex ref is created. Please
+examine these refs and maybe delete them. Turn this message off by
+running "git config advice.objectNameWarning false"
+2023-10-27 20:04:38.433 [info] > git status -z -uall [9ms]
+2023-10-27 20:04:38.433 [info] > git for-each-ref --sort -committerdate --format %(refname) %(objectname) %(*objectname) [1ms]
