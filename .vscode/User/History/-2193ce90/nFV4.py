@@ -92,21 +92,19 @@ class HuggingFaceClassifier:
         self.model.eval()
 
     def save_model(self, path: str):
-        self.model.save_pretrained(model_directory)
-        self.tokenizer.save_pretrained(model_directory)
+        base_name = 'log_classification'
+        current_datetime = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+        # Create the unique model name
+        model_name = f"{base_name}_{current_datetime}"
+        model_name
         
-    def predict(self, texts: List[str]):
+    def predict(self, text: str):
         """
-        Transform a batch of texts to tensors and get predictions
+         Transform json to tensor
         """
 
-        # Ensure texts is a list. If a single string is passed, convert it into a list.
-        if isinstance(texts, str):
-            texts = [texts]
-
-        # Tokenize the batch of texts
-        inputs = self.tokenizer(texts, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
-
+        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
         for key, value in inputs.items():
             inputs[key] = value.to(self.device)
 
@@ -114,9 +112,9 @@ class HuggingFaceClassifier:
             outputs = self.model(**inputs)
             logits = outputs.logits
             probs = torch.nn.functional.softmax(logits, dim=-1)
-            predicted_classes = torch.argmax(probs, dim=-1).tolist()
+            predicted_class = torch.argmax(probs, dim=-1).item()
 
-        return predicted_classes, probs.cpu().numpy()
+        return predicted_class, probs[0].cpu().numpy()
 
     def _tokenize_function(self, df):
         return self.tokenizer(df['text'], padding="max_length", truncation=True)

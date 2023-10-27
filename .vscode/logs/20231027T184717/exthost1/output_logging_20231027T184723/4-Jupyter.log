@@ -1,0 +1,66 @@
+code-server (1.75.1, prod-field.cs.domino.tech, server-distro)
+Jupyter Extension Version: 2022.10.110.
+Python Extension Version: 2023.4.1.
+Workspace folder /mnt/code
+info 18:51:21.965: ZMQ install verified.
+info 18:51:23.372: LSP Notebooks experiment is disabled -- Pylance disabled or not installed
+error 18:51:29.638: Failed to get activated conda env variables from Python for /opt/conda/bin/python
+info 18:51:29.638: Got empty env vars with python /opt/conda/bin/python in 5486ms
+warn 18:51:29.639: Failed to get env vars from Python extension. Falling back to ours for /opt/conda/bin/python.
+info 18:51:29.934: Got env vars ourselves faster /opt/conda/bin/python with env var count 243 in 5783ms
+info 18:51:29.966: Process Execution: > /opt/conda/bin/python -m pip list
+> /opt/conda/bin/python -m pip list
+info 18:56:00.441: Loading webview. View is notset
+info 18:56:00.443: Loading web view...
+info 18:56:00.444: Webview panel created.
+info 18:56:00.750: Web view react rendered
+info 19:02:25.207: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 19:02:25.209: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 19:02:25.210: Find preferred kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb with metadata {"dca-init":"true","kernelspec":{"display_name":"Python 3 (ipykernel)","language":"python","name":"python3"},"language_info":{"codemirror_mode":{"name":"ipython","version":3},"file_extension":".py","mimetype":"text/x-python","name":"python","nbconvert_exporter":"python","pygments_lexer":"ipython3","version":"3.9.18"}} & preferred interpreter /opt/conda/bin/python
+info 19:02:25.214: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 19:02:25.214: Preferred kernel .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher is exact match or top match for non python kernels, (false, [object Object], false, false)
+info 19:02:25.217: PreferredConnection: .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher found for NotebookDocument: /mnt/code/machine_learning/log_error_classifier_playground.ipynb
+info 19:02:36.737: Starting Jupyter Session startUsingPythonInterpreter, .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher (Python Path: /opt/conda/bin/python, EnvType: Conda, EnvName: 'base', Version: 3.9.18 (main, Sep 11 2023, 13:41:44) 
+[GCC 11.2.0]) for '/mnt/code/machine_learning/log_error_classifier_playground.ipynb' (disableUI=true)
+info 19:02:36.739: Computing working directory for resource '/mnt/code/machine_learning/log_error_classifier_playground.ipynb'
+info 19:02:39.355: Got env vars ourselves faster /opt/conda/bin/python with env var count 243 in 2614ms
+info 19:02:39.355: Got env vars ourselves faster /opt/conda/bin/python with env var count 243 in 2523ms
+info 19:02:39.355: Got env vars ourselves faster /opt/conda/bin/python with env var count 243 in 2426ms
+info 19:02:39.355: Got env vars ourselves faster /opt/conda/bin/python with env var count 243 in 2425ms
+info 19:02:39.449: Process Execution: > /opt/conda/bin/python -m pip list
+> /opt/conda/bin/python -m pip list
+info 19:02:39.544: Process Execution: > /opt/conda/bin/python -c "import ipykernel; print(ipykernel.__version__); print("5dc3a68c-e34e-4080-9c3e-2a532b2ccb4d"); print(ipykernel.__file__)"
+> /opt/conda/bin/python -c "import ipykernel; print(ipykernel.__version__); print("5dc3a68c-e34e-4080-9c3e-2a532b2ccb4d"); print(ipykernel.__file__)"
+info 19:02:39.756: Process Execution: > /opt/conda/bin/python -m ipykernel_launcher --ip=127.0.0.1 --stdin=9004 --control=9002 --hb=9001 --Session.signature_scheme="hmac-sha256" --Session.key=b"0780e11c-3fc8-4eb7-b2a5-21cd9a14ff52" --shell=9003 --transport="tcp" --iopub=9005 --f=/home/domino/.local/share/jupyter/runtime/kernel-v2-3857MRGy9mOvxYQ.json
+> /opt/conda/bin/python -m ipykernel_launcher --ip=127.0.0.1 --stdin=9004 --control=9002 --hb=9001 --Session.signature_scheme="hmac-sha256" --Session.key=b"0780e11c-3fc8-4eb7-b2a5-21cd9a14ff52" --shell=9003 --transport="tcp" --iopub=9005 --f=/home/domino/.local/share/jupyter/runtime/kernel-v2-3857MRGy9mOvxYQ.json
+info 19:02:39.756: Process Execution: cwd: /mnt/code/machine_learning
+cwd: /mnt/code/machine_learning
+info 19:02:41.341: ipykernel version & path 6.19.4, /opt/conda/lib/python3.9/site-packages/ipykernel/__init__.py for /opt/conda/bin/python
+info 19:02:43.059: Got env vars with python /opt/conda/bin/python, with env var count 244 and custom env var count 0 in 6130ms
+info 19:02:43.930: Got env vars with python /opt/conda/bin/python, with env var count 244 and custom env var count 0 in 7000ms
+info 19:02:44.457: Kernel Output: To connect another client to this kernel, use: --existing kernel-v2-3857MRGy9mOvxYQ.json
+
+info 19:02:44.529: Started Kernel base (Python 3.9.18) (pid: 3847)
+info 19:02:44.554: Got env vars with python /opt/conda/bin/python, with env var count 244 and custom env var count 0 in 7813ms
+info 19:02:44.561: UpdateWorkingDirectoryAndPath in Kernel
+info 19:02:44.751: Got env vars with python /opt/conda/bin/python, with env var count 244 and custom env var count 0 in 7919ms
+info 19:02:45.833: Got env vars ourselves faster /opt/conda/bin/python with env var count 243 in 0ms
+info 19:02:45.835: Got env vars with python /opt/conda/bin/python, with env var count 244 and custom env var count 0 in 2ms
+info 19:02:45.852: Process Execution: > /opt/conda/bin/python ~/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/pythonFiles/printJupyterDataDir.py
+> /opt/conda/bin/python ~/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/pythonFiles/printJupyterDataDir.py
+info 19:02:48.662: Shutting down notebooks for e89aa831-a97b-4c21-af3b-5cf8ed21639d
+info 19:02:48.662: Disposing HostJupyterExecution 42e05f2d-d45f-49ea-8b20-e0bedb4db4dc
+info 19:02:48.662: Disposing super HostJupyterExecution 42e05f2d-d45f-49ea-8b20-e0bedb4db4dc
+info 19:02:48.662: Dispose Kernel '/mnt/code/machine_learning/log_error_classifier_playground.ipynb' associated with '/mnt/code/machine_learning/log_error_classifier_playground.ipynb'
+info 19:02:48.672: Dispose Kernel process 3847.
+info 19:02:48.720: Disposing HostJupyterExecution 42e05f2d-d45f-49ea-8b20-e0bedb4db4dc
+info 19:02:48.720: Finished disposing HostJupyterExecution  42e05f2d-d45f-49ea-8b20-e0bedb4db4dc
+info 19:02:48.733: Cleaning up server cache 42e05f2d-d45f-49ea-8b20-e0bedb4db4dc
+info 19:02:48.739: Finished disposing HostJupyterExecution  42e05f2d-d45f-49ea-8b20-e0bedb4db4dc
+warn 19:02:48.800: Failed to delete connection file /home/domino/.local/share/jupyter/runtime/kernel-v2-3857MRGy9mOvxYQ.json for pid 3847 Canceled (FileSystemError): Canceled
+    at Function.c (/usr/lib/code-server/lib/vscode/out/vs/workbench/api/node/out-vscode-reh-web/vs/workbench/api/node/file:/home/runner/work/code-server/code-server/lib/vscode/src/vs/workbench/api/common/extHostFileSystemConsumer.ts:163:19)
+    at Object.stat (/usr/lib/code-server/lib/vscode/out/vs/workbench/api/node/out-vscode-reh-web/vs/workbench/api/node/file:/home/runner/work/code-server/code-server/lib/vscode/src/vs/workbench/api/common/extHostFileSystemConsumer.ts:50:32)
+    at b.delete (/home/domino/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/out/extension.node.js:7:16665)
+    at /home/domino/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/out/extension.node.js:2:574498 {
+  code: 'Unknown'
+}

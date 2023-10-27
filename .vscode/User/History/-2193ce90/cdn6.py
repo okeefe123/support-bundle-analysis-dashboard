@@ -2,7 +2,6 @@ import os
 import random
 import pandas as pd
 from typing import Optional
-from datetime import datetime
 
 from sklearn.model_selection import train_test_split
 from datasets import Dataset, DatasetDict
@@ -10,8 +9,6 @@ from datasets import Dataset, DatasetDict
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 from transformers import AdamW, AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-
-
 
 
 class HuggingFaceClassifier:
@@ -50,7 +47,7 @@ class HuggingFaceClassifier:
         
         # Create a DataLoader
         dataset_logs = Dataset.from_pandas(df)
-        tokenized_datasets_logs = dataset_logs.map(self._tokenize_function)
+        tokenized_datasets_logs = dataset_logs.map(self.tokenizer(df['text'], padding="max_length", truncation=True))
         tokenized_datasets_logs = tokenized_datasets_logs.remove_columns(["text"])
         tokenized_datasets_logs = tokenized_datasets_logs.rename_column("label", "labels")
         tokenized_datasets_logs.set_format("torch")
@@ -67,8 +64,8 @@ class HuggingFaceClassifier:
         self.model.train()
         for epoch in range(epochs):
             for batch in train_dataloader_logs:
-                batch = {k: v.to(self.device) for k, v in batch.items()}
-                outputs = self.model(**batch)
+                batch = {k: v.to(device) for k, v in batch.items()}
+                outputs = model(**batch)
                 loss = outputs.loss
                 loss.backward()
 
@@ -92,21 +89,14 @@ class HuggingFaceClassifier:
         self.model.eval()
 
     def save_model(self, path: str):
-        self.model.save_pretrained(model_directory)
-        self.tokenizer.save_pretrained(model_directory)
+        pass
         
-    def predict(self, texts: List[str]):
+    def predict(self, text: str):
         """
-        Transform a batch of texts to tensors and get predictions
+         Transform json to tensor
         """
 
-        # Ensure texts is a list. If a single string is passed, convert it into a list.
-        if isinstance(texts, str):
-            texts = [texts]
-
-        # Tokenize the batch of texts
-        inputs = self.tokenizer(texts, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
-
+        inputs = self.tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding="max_length")
         for key, value in inputs.items():
             inputs[key] = value.to(self.device)
 
@@ -114,12 +104,9 @@ class HuggingFaceClassifier:
             outputs = self.model(**inputs)
             logits = outputs.logits
             probs = torch.nn.functional.softmax(logits, dim=-1)
-            predicted_classes = torch.argmax(probs, dim=-1).tolist()
+            predicted_class = torch.argmax(probs, dim=-1).item()
 
-        return predicted_classes, probs.cpu().numpy()
-
-    def _tokenize_function(self, df):
-        return self.tokenizer(df['text'], padding="max_length", truncation=True)
+        return predicted_class, probs[0].cpu().numpy()
 
 # Usage example:
 # model_name = "path_or_model_identifier"
@@ -136,12 +123,11 @@ if __name__ == "__main__":
 
     dir_name = os.path.join(data_directory, 'classification_data')
     df_train = pd.read_csv(os.path.join(dir_name, "train_small.csv"))
-    df_train = df_train[1:100]
     df_test = pd.read_csv(os.path.join(dir_name, "test_small.csv"))
     
     unique_labels = df_train['label'].unique()
     text_to_label = {'none':0, 'cluster':1, 'domino':2, 'user':3}
-    label_to_text = {str(label):text for text, label in text_to_label.items()}
+    label_to_text = {str(label):text for text, label in text.to.items()}
     
     df_train['label'] = df_train['label'].apply(lambda x: text_to_label[x])
     df_test['label'] = df_test['label'].apply(lambda x: text_to_label[x])

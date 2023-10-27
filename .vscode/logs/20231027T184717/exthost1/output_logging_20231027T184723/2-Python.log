@@ -1,0 +1,53 @@
+Experiment 'pythonPromptNewFormatterExt' is active
+Experiment 'pythonPromptNewToolsExt' is active
+Experiment 'PythonPyTorchProfiler' is active
+Experiment 'pythonTensorboardExperiment' is active
+LSP Notebooks experiment is disabled -- not using Pylance
+LSP Notebooks interactive window support is disabled -- not in LSP Notebooks experiment
+> conda info --json
+Python interpreter path: /opt/conda/bin/python
+> /bin/python2 -I ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+[ERROR 2023-9-27 18:51:24.445]: Support for Python 2.7 has been dropped by the Python extension so certain features may not work, upgrade to using Python 3.
+> /bin/python2 ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+> /bin/python3 -I ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+> /usr/bin/python2 -I ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+[ERROR 2023-9-27 18:51:24.573]: Support for Python 2.7 has been dropped by the Python extension so certain features may not work, upgrade to using Python 3.
+> /usr/bin/python2 ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+> /usr/bin/python3 -I ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+> conda run -p /opt/conda/bin/python --no-capture-output python ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py
+> /opt/conda/bin/python -I ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/interpreterInfo.py
+[ERROR 2023-9-27 18:51:29.629]: getActivatedEnvironmentVariables Error: Command failed: conda run -p /opt/conda/bin/python --no-capture-output python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py
+
+EnvironmentLocationNotFound: Not a conda environment: /opt/conda/bin/python
+
+
+    at ChildProcess.exithandler (node:child_process:402:12)
+    at ChildProcess.emit (node:events:513:28)
+    at maybeClose (node:internal/child_process:1100:16)
+    at Socket.<anonymous> (node:internal/child_process:458:11)
+    at Socket.emit (node:events:513:28)
+    at Pipe.<anonymous> (node:net:301:12) {
+  code: 1,
+  killed: false,
+  signal: null,
+  cmd: 'conda run -p /opt/conda/bin/python --no-capture-output python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py'
+}
+Starting Jedi language server for code.
+Send text to terminal: source /opt/conda/bin/activate base
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+Send text to terminal: /opt/conda/bin/python /mnt/code/machine_learning/log_error_classifier.py
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+> conda info --json
+Send text to terminal:  /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 38471 -- /mnt/code/machine_learning/log_error_classifier.py 
+Send text to terminal: source /opt/conda/bin/activate base
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 49715 -- /mnt/code/machine_learning/log_error_classifier.py 
+DAP Server launched with command: /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter
+Send text to terminal:  cd /mnt/code ; /usr/bin/env /opt/conda/bin/python /home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/python/debugpy/adapter/../../debugpy/launcher 46817 -- /mnt/code/machine_learning/log_error_classifier.py 
+> conda run -n base --no-capture-output python ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py
+> conda run -n base --no-capture-output python ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py
+> conda run -n base --no-capture-output python ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py
+> conda run -n base --no-capture-output python ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/get_output_via_markers.py ~/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/printEnvVariables.py

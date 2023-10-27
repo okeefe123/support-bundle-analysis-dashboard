@@ -1,0 +1,148 @@
+WARNING:pygls.protocol:Cancel notification for unknown message id "23"
+WARNING:pygls.protocol:Cancel notification for unknown message id "24"
+WARNING:pygls.protocol:Cancel notification for unknown message id "26"
+WARNING:pygls.protocol:Cancel notification for unknown message id "25"
+WARNING:pygls.protocol:Cancel notification for unknown message id "27"
+WARNING:pygls.protocol:Cancel notification for unknown message id "29"
+WARNING:pygls.protocol:Cancel notification for unknown message id "56"
+WARNING:pygls.protocol:Cancel notification for unknown message id "60"
+WARNING:pygls.protocol:Cancel notification for unknown message id "64"
+WARNING:pygls.protocol:Cancel notification for unknown message id "90"
+WARNING:pygls.protocol:Cancel notification for unknown message id "110"
+WARNING:pygls.protocol:Cancel notification for unknown message id "139"
+WARNING:pygls.protocol:Cancel notification for unknown message id "145"
+WARNING:pygls.protocol:Cancel notification for unknown message id "158"
+WARNING:pygls.protocol:Cancel notification for unknown message id "160"
+WARNING:pygls.protocol:Cancel notification for unknown message id "159"
+WARNING:pygls.protocol:Cancel notification for unknown message id "162"
+WARNING:pygls.protocol:Cancel notification for unknown message id "163"
+WARNING:pygls.protocol:Cancel notification for unknown message id "164"
+WARNING:pygls.protocol:Cancel notification for unknown message id "165"
+WARNING:pygls.protocol:Cancel notification for unknown message id "169"
+WARNING:pygls.protocol:Cancel notification for unknown message id "172"
+WARNING:pygls.protocol:Cancel notification for unknown message id "186"
+WARNING:pygls.protocol:Cancel notification for unknown message id "253"
+WARNING:pygls.protocol:Cancel notification for unknown message id "254"
+WARNING:pygls.protocol:Cancel notification for unknown message id "255"
+WARNING:pygls.protocol:Cancel notification for unknown message id "256"
+WARNING:pygls.protocol:Cancel notification for unknown message id "257"
+WARNING:pygls.protocol:Cancel notification for unknown message id "262"
+WARNING:pygls.protocol:Cancel notification for unknown message id "263"
+WARNING:pygls.protocol:Cancel notification for unknown message id "264"
+WARNING:pygls.protocol:Cancel notification for unknown message id "266"
+WARNING:pygls.protocol:Cancel notification for unknown message id "265"
+WARNING:pygls.protocol:Cancel notification for unknown message id "268"
+WARNING:pygls.protocol:Cancel notification for unknown message id "269"
+WARNING:pygls.protocol:Cancel notification for unknown message id "270"
+WARNING:pygls.protocol:Cancel notification for unknown message id "271"
+WARNING:pygls.protocol:Cancel notification for unknown message id "272"
+WARNING:pygls.protocol:Cancel notification for unknown message id "273"
+WARNING:pygls.protocol:Cancel notification for unknown message id "274"
+WARNING:pygls.protocol:Cancel notification for unknown message id "275"
+WARNING:pygls.protocol:Cancel notification for unknown message id "276"
+WARNING:pygls.protocol:Cancel notification for unknown message id "277"
+WARNING:pygls.protocol:Cancel notification for unknown message id "278"
+WARNING:pygls.protocol:Cancel notification for unknown message id "279"
+WARNING:pygls.protocol:Cancel notification for unknown message id "280"
+WARNING:pygls.protocol:Cancel notification for unknown message id "281"
+WARNING:pygls.protocol:Cancel notification for unknown message id "282"
+WARNING:pygls.protocol:Cancel notification for unknown message id "283"
+WARNING:pygls.protocol:Cancel notification for unknown message id "284"
+WARNING:pygls.protocol:Cancel notification for unknown message id "286"
+WARNING:pygls.protocol:Cancel notification for unknown message id "287"
+WARNING:pygls.protocol:Cancel notification for unknown message id "289"
+WARNING:pygls.protocol:Cancel notification for unknown message id "290"
+WARNING:pygls.protocol:Cancel notification for unknown message id "291"
+WARNING:pygls.protocol:Cancel notification for unknown message id "292"
+WARNING:pygls.protocol:Cancel notification for unknown message id "294"
+WARNING:pygls.protocol:Cancel notification for unknown message id "288"
+WARNING:pygls.protocol:Cancel notification for unknown message id "293"
+WARNING:pygls.protocol:Cancel notification for unknown message id "295"
+WARNING:pygls.protocol:Cancel notification for unknown message id "303"
+WARNING:pygls.protocol:Cancel notification for unknown message id "314"
+WARNING:pygls.protocol:Cancel notification for unknown message id "342"
+Exception in thread Thread-182:
+Traceback (most recent call last):
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/jedi_utils.py", line 289, in lsp_python_diagnostic
+    compile(source, uri, "exec", PyCF_ONLY_AST)
+  File "file:///mnt/code/machine_learning/log_error_classifier.py", line 95
+    model.save_pretrained(model_directory)
+IndentationError: expected an indented block
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.9/threading.py", line 980, in _bootstrap_inner
+    self.run()
+  File "/opt/conda/lib/python3.9/threading.py", line 1306, in run
+    self.function(*self.args, **self.kwargs)
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/jedi_utils.py", line 61, in run
+    return func(*args, **kwargs)
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/server.py", line 651, in _publish_diagnostics
+    diagnostic = jedi_utils.lsp_python_diagnostic(uri, doc.source)
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/jedi_utils.py", line 309, in lsp_python_diagnostic
+    start=Position(line=line, character=column),
+  File "<attrs generated init lsprotocol.types.Position>", line 7, in __init__
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/lsprotocol/validators.py", line 45, in uinteger_validator
+    raise ValueError(
+ValueError: Position.character should be in range [0:2147483647], but was -1.
+Exception in thread Thread-183:
+Traceback (most recent call last):
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/jedi_utils.py", line 289, in lsp_python_diagnostic
+    compile(source, uri, "exec", PyCF_ONLY_AST)
+  File "file:///mnt/code/machine_learning/log_error_classifier.py", line 95
+    model.save_pretrained(model_directory)
+IndentationError: expected an indented block
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.9/threading.py", line 980, in _bootstrap_inner
+    self.run()
+  File "/opt/conda/lib/python3.9/threading.py", line 1306, in run
+    self.function(*self.args, **self.kwargs)
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/jedi_utils.py", line 61, in run
+    return func(*args, **kwargs)
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/server.py", line 651, in _publish_diagnostics
+    diagnostic = jedi_utils.lsp_python_diagnostic(uri, doc.source)
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/jedi_language_server/jedi_utils.py", line 309, in lsp_python_diagnostic
+    start=Position(line=line, character=column),
+  File "<attrs generated init lsprotocol.types.Position>", line 7, in __init__
+  File "/home/domino/.local/share/code-server/extensions/ms-python.python-2023.4.1/pythonFiles/lib/jedilsp/lsprotocol/validators.py", line 45, in uinteger_validator
+    raise ValueError(
+ValueError: Position.character should be in range [0:2147483647], but was -1.
+WARNING:pygls.protocol:Cancel notification for unknown message id "372"
+WARNING:pygls.protocol:Cancel notification for unknown message id "373"
+WARNING:pygls.protocol:Cancel notification for unknown message id "374"
+WARNING:pygls.protocol:Cancel notification for unknown message id "379"
+WARNING:pygls.protocol:Cancel notification for unknown message id "381"
+WARNING:pygls.protocol:Cancel notification for unknown message id "386"
+WARNING:pygls.protocol:Cancel notification for unknown message id "387"
+WARNING:pygls.protocol:Cancel notification for unknown message id "393"
+WARNING:pygls.protocol:Cancel notification for unknown message id "395"
+WARNING:pygls.protocol:Cancel notification for unknown message id "394"
+WARNING:pygls.protocol:Cancel notification for unknown message id "397"
+WARNING:pygls.protocol:Cancel notification for unknown message id "401"
+WARNING:pygls.protocol:Cancel notification for unknown message id "414"
+WARNING:pygls.protocol:Cancel notification for unknown message id "429"
+WARNING:pygls.protocol:Cancel notification for unknown message id "433"
+WARNING:pygls.protocol:Cancel notification for unknown message id "434"
+WARNING:pygls.protocol:Cancel notification for unknown message id "435"
+WARNING:pygls.protocol:Cancel notification for unknown message id "436"
+WARNING:pygls.protocol:Cancel notification for unknown message id "437"
+WARNING:pygls.protocol:Cancel notification for unknown message id "438"
+WARNING:pygls.protocol:Cancel notification for unknown message id "441"
+WARNING:pygls.protocol:Cancel notification for unknown message id "443"
+WARNING:pygls.protocol:Cancel notification for unknown message id "475"
+WARNING:pygls.protocol:Cancel notification for unknown message id "477"
+WARNING:pygls.protocol:Cancel notification for unknown message id "507"
+WARNING:pygls.protocol:Cancel notification for unknown message id "509"
+WARNING:pygls.protocol:Cancel notification for unknown message id "510"
+WARNING:pygls.protocol:Cancel notification for unknown message id "525"
+WARNING:pygls.protocol:Cancel notification for unknown message id "526"
+WARNING:pygls.protocol:Cancel notification for unknown message id "527"
+WARNING:pygls.protocol:Cancel notification for unknown message id "528"
+WARNING:pygls.protocol:Cancel notification for unknown message id "531"
+WARNING:pygls.protocol:Cancel notification for unknown message id "533"
+WARNING:pygls.protocol:Cancel notification for unknown message id "582"
+WARNING:pygls.protocol:Cancel notification for unknown message id "583"
