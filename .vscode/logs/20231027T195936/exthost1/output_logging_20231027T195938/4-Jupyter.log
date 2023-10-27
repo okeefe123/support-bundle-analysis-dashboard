@@ -1,0 +1,53 @@
+code-server (1.75.1, prod-field.cs.domino.tech, server-distro)
+Jupyter Extension Version: 2022.10.110.
+Python Extension Version: 2023.4.1.
+Workspace folder /mnt/code
+info 20:02:28.691: ZMQ install verified.
+info 20:02:29.106: LSP Notebooks experiment is disabled -- Pylance disabled or not installed
+info 20:02:29.500: Got env vars ourselves faster /opt/conda/bin/python with env var count 256 in 186ms
+info 20:02:29.512: Process Execution: > /opt/conda/bin/python -m pip list
+> /opt/conda/bin/python -m pip list
+info 20:02:32.452: Got env vars with python /opt/conda/bin/python, with env var count 257 and custom env var count 0 in 3137ms
+info 20:02:35.251: Preferred Remote kernel for /mnt/code/machine_learning/testing_hugging_face_documentation.ipynb is undefined
+info 20:02:35.251: Preferred Remote kernel for /mnt/code/machine_learning/testing_hugging_face_documentation.ipynb is undefined
+info 20:02:35.252: Find preferred kernel for /mnt/code/machine_learning/testing_hugging_face_documentation.ipynb with metadata {"dca-init":"true","kernelspec":{"display_name":"Python 3 (ipykernel)","language":"python","name":"python3"},"language_info":{"codemirror_mode":{"name":"ipython","version":3},"file_extension":".py","mimetype":"text/x-python","name":"python","nbconvert_exporter":"python","pygments_lexer":"ipython3","version":"3.9.18"}} & preferred interpreter /opt/conda/bin/python
+info 20:02:35.253: Preferred Remote kernel for /mnt/code/machine_learning/testing_hugging_face_documentation.ipynb is undefined
+info 20:02:35.254: Preferred kernel .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher is exact match or top match for non python kernels, (false, [object Object], false, false)
+info 20:02:35.254: PreferredConnection: .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher found for NotebookDocument: /mnt/code/machine_learning/testing_hugging_face_documentation.ipynb
+info 20:02:48.105: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 20:02:48.105: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 20:02:48.105: Find preferred kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb with metadata {"dca-init":"true","kernelspec":{"display_name":"Python 3 (ipykernel)","language":"python","name":"python3"},"language_info":{"codemirror_mode":{"name":"ipython","version":3},"file_extension":".py","mimetype":"text/x-python","name":"python","nbconvert_exporter":"python","pygments_lexer":"ipython3","version":"3.9.18"}} & preferred interpreter /opt/conda/bin/python
+info 20:02:48.106: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 20:02:48.106: Preferred kernel .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher is exact match or top match for non python kernels, (false, [object Object], false, false)
+info 20:02:48.106: PreferredConnection: .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher found for NotebookDocument: /mnt/code/machine_learning/log_error_classifier_playground.ipynb
+info 20:02:56.497: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 20:02:56.498: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 20:02:56.498: Find preferred kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb with metadata {"dca-init":"true","kernelspec":{"display_name":"Python 3 (ipykernel)","language":"python","name":"python3"},"language_info":{"codemirror_mode":{"name":"ipython","version":3},"file_extension":".py","mimetype":"text/x-python","name":"python","nbconvert_exporter":"python","pygments_lexer":"ipython3","version":"3.9.18"}} & preferred interpreter /opt/conda/bin/python
+info 20:02:56.499: Preferred Remote kernel for /mnt/code/machine_learning/log_error_classifier_playground.ipynb is undefined
+info 20:02:56.499: Preferred kernel .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher is exact match or top match for non python kernels, (false, [object Object], false, false)
+info 20:02:56.499: PreferredConnection: .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher found for NotebookDocument: /mnt/code/machine_learning/log_error_classifier_playground.ipynb
+info 20:02:56.823: Starting Jupyter Session startUsingPythonInterpreter, .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher (Python Path: /opt/conda/bin/python, EnvType: Conda, EnvName: 'base', Version: 3.9.18 (main, Sep 11 2023, 13:41:44) 
+[GCC 11.2.0]) for '/mnt/code/machine_learning/log_error_classifier_playground.ipynb' (disableUI=true)
+info 20:02:56.824: Computing working directory for resource '/mnt/code/machine_learning/log_error_classifier_playground.ipynb'
+info 20:02:56.826: Got env vars ourselves faster /opt/conda/bin/python with env var count 256 in 1ms
+info 20:02:56.837: Process Execution: > /opt/conda/bin/python -c "import ipykernel; print(ipykernel.__version__); print("5dc3a68c-e34e-4080-9c3e-2a532b2ccb4d"); print(ipykernel.__file__)"
+> /opt/conda/bin/python -c "import ipykernel; print(ipykernel.__version__); print("5dc3a68c-e34e-4080-9c3e-2a532b2ccb4d"); print(ipykernel.__file__)"
+info 20:02:56.855: Got env vars ourselves faster /opt/conda/bin/python with env var count 256 in 1ms
+info 20:02:56.855: Got env vars ourselves faster /opt/conda/bin/python with env var count 256 in 0ms
+info 20:02:56.893: Process Execution: > /opt/conda/bin/python -m ipykernel_launcher --ip=127.0.0.1 --stdin=9004 --control=9002 --hb=9001 --Session.signature_scheme="hmac-sha256" --Session.key=b"9830d0bc-bfd5-4f6b-8895-59dbc7a86e67" --shell=9003 --transport="tcp" --iopub=9005 --f=/home/domino/.local/share/jupyter/runtime/kernel-v2-909B2BXyOGorN47.json
+> /opt/conda/bin/python -m ipykernel_launcher --ip=127.0.0.1 --stdin=9004 --control=9002 --hb=9001 --Session.signature_scheme="hmac-sha256" --Session.key=b"9830d0bc-bfd5-4f6b-8895-59dbc7a86e67" --shell=9003 --transport="tcp" --iopub=9005 --f=/home/domino/.local/share/jupyter/runtime/kernel-v2-909B2BXyOGorN47.json
+info 20:02:56.893: Process Execution: cwd: /mnt/code/machine_learning
+cwd: /mnt/code/machine_learning
+info 20:02:56.963: ipykernel version & path 6.19.4, /opt/conda/lib/python3.9/site-packages/ipykernel/__init__.py for /opt/conda/bin/python
+info 20:02:57.227: Kernel Output: To connect another client to this kernel, use: --existing kernel-v2-909B2BXyOGorN47.json
+
+info 20:02:57.329: Started Kernel base (Python 3.9.18) (pid: 1624)
+info 20:02:57.333: UpdateWorkingDirectoryAndPath in Kernel
+info 20:02:57.437: Got env vars with python /opt/conda/bin/python, with env var count 257 and custom env var count 0 in 612ms
+info 20:02:57.445: Got env vars with python /opt/conda/bin/python, with env var count 257 and custom env var count 0 in 591ms
+info 20:02:57.452: Got env vars with python /opt/conda/bin/python, with env var count 257 and custom env var count 0 in 597ms
+info 20:02:57.697: Got env vars ourselves faster /opt/conda/bin/python with env var count 256 in 0ms
+info 20:02:57.698: Got env vars with python /opt/conda/bin/python, with env var count 257 and custom env var count 0 in 1ms
+info 20:02:57.707: Process Execution: > /opt/conda/bin/python ~/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/pythonFiles/printJupyterDataDir.py
+> /opt/conda/bin/python ~/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/pythonFiles/printJupyterDataDir.py
+warn 20:03:12.890: Failed to extract require.config from widget for domino-code-assist from /home/domino/.local/share/code-server/extensions/ms-toolsai.jupyter-2022.10.110-universal/tmp/scripts/7df0c2453e49ed05d3d0f3794defcebd56ad42641b177491fc43aece0cf55ce2/jupyter/nbextensions/domino-code-assist/extension.js
