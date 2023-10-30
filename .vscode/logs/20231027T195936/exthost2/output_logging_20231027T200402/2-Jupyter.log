@@ -78,3 +78,11 @@ info 20:04:05.568: Got env vars ourselves faster /opt/conda/bin/python with env 
 info 20:04:05.582: Process Execution: > /opt/conda/bin/python -m pip list
 > /opt/conda/bin/python -m pip list
 info 20:04:08.520: Got env vars with python /opt/conda/bin/python, with env var count 257 and custom env var count 0 in 3127ms
+info 20:38:41.769: Shutting down notebooks for 57d118c5-90c9-477e-ac81-7caecb5c57ed
+info 20:38:41.770: Disposing HostJupyterExecution 015cda79-3ee6-4533-92c3-e0a9777d273b
+info 20:38:41.770: Disposing super HostJupyterExecution 015cda79-3ee6-4533-92c3-e0a9777d273b
+info 20:38:41.770: Dispose Kernel '/mnt/code/machine_learning/log_error_classifier_playground.ipynb' associated with '/mnt/code/machine_learning/log_error_classifier_playground.ipynb'
+info 20:38:41.773: Disposing HostJupyterExecution 015cda79-3ee6-4533-92c3-e0a9777d273b
+info 20:38:41.773: Finished disposing HostJupyterExecution  015cda79-3ee6-4533-92c3-e0a9777d273b
+info 20:38:41.777: Cleaning up server cache 015cda79-3ee6-4533-92c3-e0a9777d273b
+info 20:38:41.777: Finished disposing HostJupyterExecution  015cda79-3ee6-4533-92c3-e0a9777d273b
