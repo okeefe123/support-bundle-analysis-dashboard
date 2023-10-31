@@ -1036,16 +1036,82 @@ server <- function(input, output, session) {
       parallel::clusterExport(cl, "identify_support_bundle_errors")
       parallel::clusterExport(cl, 'regex_pattern_df')
       parallel::clusterExport(cl, 'data_directory')
+      # parallel::clusterExport(cl, 'model_rest_url')
+      # parallel::clusterExport(cl, 'model_api_key')
+      
       parallel::clusterEvalQ(cl, {
         library(magrittr)
+        library(httr)
+        library(jsonlite)
       })
       
       #browser()
       out <- parallel::parLapply(cl, all_file_paths, unzip_single) %>% do.call(rbind, .)
       parallel::stopCluster(cl)
       
-      #browser()
+      ##browser()
       output_df <- rbind(output_df, out)
+      
+      found_errors <- lapply(output_df$File_Path, function(target) {
+        target <- stringi::stri_split(target, regex="/") %>% unlist()
+        out <- target[length(target)-1]
+        return(out)
+      })
+      
+      ml_errors <- setdiff(download_list, found_errors)
+      ml_errors <- paste0(ml_errors, collapse="|")
+      ml_support_bundles <- all_file_paths[grepl(ml_errors, all_file_paths) & !grepl("\\.zip", all_file_paths)]
+      
+      # Now, identify any non-error "Error/Failed" files and push them through the model api
+      # Machine learning API
+      all_files <- list.files(ml_support_bundles, full.names=TRUE)
+      all_files <- all_files[grep("executor|logjam|run|events|execution", all_files)]
+      #a <- Sys.time()
+      file_errors <- lapply(all_files, function(target_file_name) {
+        target_file <- readLines(target_file_name)
+        url <- model_rest_url # located in credentials.R (same with model_api_key)
+        response <- httr::POST(
+          url,
+          authenticate(model_api_key, model_api_key, type = "basic"),
+          body=toJSON(list(data=list(text = target_file)), auto_unbox = TRUE),
+          content_type("application/json")
+        )
+        
+        predictions <- content(response)
+        predictions <- unname(unlist(predictions$result))
+        
+        num_errors <- length(predictions[which(predictions != "none")])
+        # Identify any potential errors which are not none. If they exist, turn it into a dataframe. If not, just cbind that stuff
+        if(num_errors > 0) {
+          error_lines <- which(predictions != "none")
+          errors <- predictions[error_lines]
+          error_description <- target_file[error_lines]
+          data <- data.frame('Error'=errors, 'Line_Number'=error_lines, 'Context'=error_description)
+          data$File_Path <- target_file_name
+          
+          associated_node <- target_file[grep("assignedNodeName", target_file)]
+          associated_node <- stringi::stri_extract(associated_node, regex="ip-[0-9]+-[0-9]+-[0-9]+-[0-9]+\\..*\\.compute.internal")
+          if(length(associated_node) > 0) {
+            data$Node <- associated_node
+          } else {
+            data$Node <- NA
+          }
+          
+          out <- data
+        } else {
+          out <- data.frame(
+            Error = character(0),
+            Line_Number = integer(0),
+            Context = character(0),
+            Error_Type = character(0),
+            File_Path = character(0),
+            Node = character(0)
+          )
+        }
+      }) %>% do.call(rbind, .)
+      
+      browser()
+      output_df <- rbind(output_df, file_errors)
       #zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
       # Delete the zip files
       incProgress(1/2)
@@ -1075,11 +1141,11 @@ server <- function(input, output, session) {
         most_recent_log <- target_rows[which(target_rows$Date_Time == max(target_rows$Date_Time, na.rm=TRUE)),]
         
         # Just in case there are multiple errors caught at the same most recent time
-        highest_vote <- table(most_recent_log$Error_Type)
+        highest_vote <- table(most_recent_log$Error)
         
         # Edge case: all returned hits are found without timestamps
         if(length(highest_vote) == 0) {
-          highest_vote <- table(target_rows$Error_Type)
+          highest_vote <- table(target_rows$Error)
         }
         
         highest_vote <- names(highest_vote[which(highest_vote == max(highest_vote))])
@@ -1092,6 +1158,7 @@ server <- function(input, output, session) {
         return(highest_vote)
       }) %>% unlist()
       
+      #browser()
       metadata_agg <- as.data.table(highest_vote)
       metadata_agg <- metadata_agg[, .N, by=Error_Type]
       all_errors <- data.frame("Error_Type"=error_types)

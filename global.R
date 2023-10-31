@@ -1,8 +1,7 @@
 rm(list=ls())
 
 #### THESE SHOULD BE EDITED! ####
-domino_project_name <- "allstate_log_github"
-domino_url <- 'prod-field.cs.domino.tech'
+source('./credentials.R')
 data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 
 # Load the required packages
@@ -31,10 +30,6 @@ options(scipen = 999)
 #domino_project_name <- system("echo $DOMINO_PROJECT_NAME", intern=TRUE)
 #domino_url <- system("echo $RSTUDIO_HTTP_REFERER", intern=TRUE)
 #domino_url <- stringi::stri_extract(domino_url, regex="(?<=https:\\/\\/)([^\\/]+)")
-
-
-
-domino_user_api_key <- system("echo $DOMINO_USER_API_KEY", intern=TRUE)
 
 
 #### Precreate all the needed folders (for dependencies/data/etc...) ####
@@ -283,6 +278,29 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
     if(nrow(out) > 0) {
       out$File_Path <- target_file_name
     } else {
+      # # Machine learning API
+      # url <- model_rest_url # located in credentials.R (same with model_api_key)
+      # response <- httr::POST(
+      #   url,
+      #   authenticate(model_api_key, model_api_key, type = "basic"),
+      #   body=toJSON(list(data=list(text = target_file)), auto_unbox = TRUE),
+      #   content_type("application/json")
+      # )
+      # predictions <- content(response)
+      # predictions <- unname(unlist(predictions$result))
+      # 
+      # num_errors <- length(predictions[which(predictions != "none")])
+      # # Identify any potential errors which are not none. If they exist, turn it into a dataframe. If not, just cbind that stuff
+      # if(num_errors > 0) {
+      #   error_lines <- which(predictions != "none")
+      #   errors <- predictions[error_lines]
+      #   error_description <- target_file[error_lines]
+      #   data <- data.frame('Error'=errors, 'Line_Number'=error_lines, 'Context'=error_description)
+      #   data$File_Path <- target_file_name
+      #   out <- data
+      # } else {
+      #   out <- cbind(out, File_Path = character(0))
+      # }
       out <- cbind(out, File_Path = character(0))
     }
     return(out)
