@@ -1084,10 +1084,17 @@ server <- function(input, output, session) {
         # Identify any potential errors which are not none. If they exist, turn it into a dataframe. If not, just cbind that stuff
         if(num_errors > 0) {
           error_lines <- which(predictions != "none")
-          errors <- predictions[error_lines]
+          error_type <- predictions[error_lines]
+          error <- target_file[error_lines]
           error_description <- target_file[error_lines]
-          data <- data.frame('Error'=errors, 'Line_Number'=error_lines, 'Context'=error_description)
+          data <- data.frame('Error'=errors, 'Line_Number'=error_lines, 'Context'=error_description, 'Error_Type'=error_type)
           data$File_Path <- target_file_name
+          datetime_str <- stringi::stri_extract(data$Context, regex="\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")
+          data$Date_Time <- lubridate::ymd_hms(datetime_str, tz = "UTC")
+          data$execution_id <- lapply(data$File_Path, function(file_path) {
+            file_path <- stringi::stri_split(file_path, regex="/") %>% unlist()
+            execution_id <- file_path[length(file_path)-1]
+          })
           
           associated_node <- target_file[grep("assignedNodeName", target_file)]
           associated_node <- stringi::stri_extract(associated_node, regex="ip-[0-9]+-[0-9]+-[0-9]+-[0-9]+\\..*\\.compute.internal")
@@ -1111,6 +1118,12 @@ server <- function(input, output, session) {
       }) %>% do.call(rbind, .)
       
       browser()
+      
+      file_errors$execution_id <- lapply(file_errors$File_Path, function(file_path) {
+        file_path <- stringi::stri_split(file_path, regex="/") %>% unlist()
+        execution_id <- file_path[length(file_path)-1]
+      })
+      
       output_df <- rbind(output_df, file_errors)
       #zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
       # Delete the zip files
