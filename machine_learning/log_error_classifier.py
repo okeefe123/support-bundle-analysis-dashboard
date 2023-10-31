@@ -25,6 +25,7 @@ class HuggingFaceClassifier:
         path_or_pretrained: path to precreated model OR name of pretrained model from HF
         num_labels: number of labels. This is not needed if loading a model that's already been fine-tuned 
         """
+        self.label_to_error = {0:'none', 1:'cluster', 2:'domino', 3:'user'}
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.tokenizer = AutoTokenizer.from_pretrained(path_or_pretrained)

@@ -11,7 +11,7 @@ def predict(text):
     prediction_strings = [classifier.label_to_error[pred] for pred in predictions]
     print(prediction_strings)
 
-    return dict(error_class=prediction_strings)
+    return dict(a_random_number=random_number(start, stop))
 
 if __name__ == "__main__":
     tst_string = "This is a test"
