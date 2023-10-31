@@ -47,3 +47,11 @@ info 19:03:20.567: Preferred Remote kernel for /mnt/code/machine_learning/log_er
 info 19:03:20.620: Preferred kernel .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher is exact match or top match for non python kernels, (false, [object Object], true, false)
 info 19:03:20.622: PreferredConnection: .jvsc74a57bd0d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe./opt/conda/python./opt/conda/python.-m#ipykernel_launcher found for NotebookDocument: /mnt/code/machine_learning/log_error_classifier_playground.ipynb
 info 19:03:23.261: Got env vars with python /opt/conda/bin/python, with env var count 244 and custom env var count 0 in 8085ms
+info 20:03:27.495: Shutting down notebooks for cae4b770-84d6-44f6-9ba9-6d480e8fd994
+info 20:03:27.495: Disposing HostJupyterExecution f48ed432-d15b-4c34-96f4-2186b8ade614
+info 20:03:27.496: Disposing super HostJupyterExecution f48ed432-d15b-4c34-96f4-2186b8ade614
+info 20:03:27.496: Dispose Kernel '/mnt/code/machine_learning/log_error_classifier_playground.ipynb' associated with '/mnt/code/machine_learning/log_error_classifier_playground.ipynb'
+info 20:03:27.505: Disposing HostJupyterExecution f48ed432-d15b-4c34-96f4-2186b8ade614
+info 20:03:27.505: Finished disposing HostJupyterExecution  f48ed432-d15b-4c34-96f4-2186b8ade614
+info 20:03:27.518: Cleaning up server cache f48ed432-d15b-4c34-96f4-2186b8ade614
+info 20:03:27.520: Finished disposing HostJupyterExecution  f48ed432-d15b-4c34-96f4-2186b8ade614
