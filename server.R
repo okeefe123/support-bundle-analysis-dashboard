@@ -607,13 +607,23 @@ server <- function(input, output, session) {
         return(out_subset)
       }) %>% do.call(rbind, .)
       
+
+      is_negative <- tryCatch({
+        length(which(new_out$running_during_timestamp < 0)) == 0
+      }, error = function(e) FALSE)
+      
       validate(
-        need(try(length(which(new_out$running_during_timestamp < 0)) > 0), "Oops! Something went wrong with the calculations.")
+        need(is_negative, "Oops! Aggregations yielded a negative time duration.")
       )
+      
       
       new_out$timestamp <- as.numeric(new_out$date_time) * 1000
       new_out$date_time <- as.POSIXct(new_out$date_time, origin="1970-01-01", tz="UTC")
+      #browser()
       
+      # Because the above aggregation rely on "ceiling rounding" for closing date, some of the close times may round
+      # to the next day. This does not make sense when looking at anything in the future (these should just be seen as being open at time of aggregation)
+      new_out <- new_out[which(new_out$date_time <= Sys.Date()),]
       return(new_out)
     }
   })
@@ -1136,25 +1146,29 @@ server <- function(input, output, session) {
   
   metadata_agg <- shiny::reactive({
     if(!is.null(metadata_df())) {
-      
+      #browser()
       shiny::validate(
         need(nrow(metadata_df()) > 0, "No errors identified in the selected bundles.")
       )
       highest_vote <- data.frame(execution_id=unique(metadata_df()$execution_id))
 
-      #execution_id <- unique(metadata_df()$execution_id)[2]
+      execution_id <- unique(metadata_df()$execution_id)[2]
       highest_vote$Error_Type <- lapply(unique(metadata_df()$execution_id), function(execution_id) {
         cat(execution_id, "\n")
         target_rows <- metadata_df()[which(metadata_df()$execution_id == execution_id),]
         most_recent_log <- target_rows[which(target_rows$Date_Time == max(target_rows$Date_Time, na.rm=TRUE)),]
         
-        # Just in case there are multiple errors caught at the same most recent time
-        highest_vote <- table(most_recent_log$Error)
-        
-        # Edge case: all returned hits are found without timestamps
-        if(length(highest_vote) == 0) {
-          highest_vote <- table(target_rows$Error)
+        # Edge case: none of the execution ids have timestamps. Just choose the highest vote. This prioritizes errors with timestamps
+        if(nrow(most_recent_log) == 0) {
+          most_recent_log <- target_rows
         }
+        # Just in case there are multiple errors caught at the same most recent time
+        highest_vote <- table(most_recent_log$Error_Type)
+        
+        # # Edge case: all returned hits are found without timestamps
+        # if(length(highest_vote) == 0) {
+        #   highest_vote <- table(target_rows$Error)
+        # }
         
         highest_vote <- names(highest_vote[which(highest_vote == max(highest_vote))])
         
@@ -1178,9 +1192,19 @@ server <- function(input, output, session) {
     }
   })
   
+  execution_ids_failed_downloads <- shiny::reactive({
+    if(!is.null(metadata_df()) & !is.null(selected_execution_ids())) {
+      browser()
+      successfully_downloaded_ids <- list.files(paste0(data_directory, "support-bundles"))
+      setdiff(paste0(selected_execution_ids(), ".zip"), successfully_downloaded_ids)
+      selected_execution_ids()
+      cat("We made it here!!")
+    }
+  })
+  
   execution_ids_no_errors <- shiny::reactive({
     if(!is.null(metadata_df()) & !is.null(selected_execution_ids())){
-      #browser()
+      browser()
       error_free_ids <- paste0(setdiff(selected_execution_ids(), metadata_df()$execution_id), collapse="\n")
       return(error_free_ids)
     }
@@ -1495,10 +1519,10 @@ server <- function(input, output, session) {
   )
   
   output$bundle_content_summary_select_ui <- shiny::renderUI({
-    if(!is.null(input$csv_file_dropdown)) {
+    if(!is.null(support_bundle_csv_files())) {
       #browser()
-      execution_id <- stringi::stri_extract(input$csv_file_dropdown, regex=".*(?=-summary\\.csv)")
-      directories <- paste0(data_directory, "support-bundles/support-bundle-", execution_id)
+      execution_id <- stringi::stri_extract(support_bundle_csv_files(), regex=".*(?=-summary\\.csv)")
+      directories <- paste0(data_directory, "support-bundles/", execution_id)
       path_choices <- list.files(directories, full.names=TRUE)
       names(path_choices) <- list.files(directories, full.names=FALSE)
       
