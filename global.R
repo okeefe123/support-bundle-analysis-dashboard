@@ -2,7 +2,6 @@ rm(list=ls())
 
 #### THESE SHOULD BE EDITED! ####
 source('./credentials.R')
-data_directory <- paste0("/mnt/data/", domino_project_name, "/")
 
 # Load the required packages
 #### GLOBAL.R ####

@@ -1052,79 +1052,74 @@ server <- function(input, output, session) {
       ##browser()
       output_df <- rbind(output_df, out)
       
-      found_errors <- lapply(output_df$File_Path, function(target) {
-        target <- stringi::stri_split(target, regex="/") %>% unlist()
-        out <- target[length(target)-1]
-        return(out)
-      })
-      
-      ml_errors <- setdiff(download_list, found_errors)
-      ml_errors <- paste0(ml_errors, collapse="|")
-      ml_support_bundles <- all_file_paths[grepl(ml_errors, all_file_paths) & !grepl("\\.zip", all_file_paths)]
-      
-      # Now, identify any non-error "Error/Failed" files and push them through the model api
-      # Machine learning API
-      all_files <- list.files(ml_support_bundles, full.names=TRUE)
-      all_files <- all_files[grep("executor|logjam|run|events|execution", all_files)]
-      #a <- Sys.time()
-      file_errors <- lapply(all_files, function(target_file_name) {
-        target_file <- readLines(target_file_name)
-        url <- model_rest_url # located in credentials.R (same with model_api_key)
-        response <- httr::POST(
-          url,
-          authenticate(model_api_key, model_api_key, type = "basic"),
-          body=toJSON(list(data=list(text = target_file)), auto_unbox = TRUE),
-          content_type("application/json")
-        )
-        
-        predictions <- content(response)
-        predictions <- unname(unlist(predictions$result))
-        
-        num_errors <- length(predictions[which(predictions != "none")])
-        # Identify any potential errors which are not none. If they exist, turn it into a dataframe. If not, just cbind that stuff
-        if(num_errors > 0) {
-          error_lines <- which(predictions != "none")
-          error_type <- predictions[error_lines]
-          error <- target_file[error_lines]
-          error_description <- target_file[error_lines]
-          data <- data.frame('Error'=errors, 'Line_Number'=error_lines, 'Context'=error_description, 'Error_Type'=error_type)
-          data$File_Path <- target_file_name
-          datetime_str <- stringi::stri_extract(data$Context, regex="\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")
-          data$Date_Time <- lubridate::ymd_hms(datetime_str, tz = "UTC")
-          data$execution_id <- lapply(data$File_Path, function(file_path) {
-            file_path <- stringi::stri_split(file_path, regex="/") %>% unlist()
-            execution_id <- file_path[length(file_path)-1]
-          })
-          
-          associated_node <- target_file[grep("assignedNodeName", target_file)]
-          associated_node <- stringi::stri_extract(associated_node, regex="ip-[0-9]+-[0-9]+-[0-9]+-[0-9]+\\..*\\.compute.internal")
-          if(length(associated_node) > 0) {
-            data$Node <- associated_node
-          } else {
-            data$Node <- NA
-          }
-          
-          out <- data
-        } else {
-          out <- data.frame(
-            Error = character(0),
-            Line_Number = integer(0),
-            Context = character(0),
-            Error_Type = character(0),
-            File_Path = character(0),
-            Node = character(0)
-          )
-        }
-      }) %>% do.call(rbind, .)
-      
-      browser()
-      
-      file_errors$execution_id <- lapply(file_errors$File_Path, function(file_path) {
-        file_path <- stringi::stri_split(file_path, regex="/") %>% unlist()
-        execution_id <- file_path[length(file_path)-1]
-      })
-      
-      output_df <- rbind(output_df, file_errors)
+      # found_errors <- lapply(output_df$File_Path, function(target) {
+      #   target <- stringi::stri_split(target, regex="/") %>% unlist()
+      #   out <- target[length(target)-1]
+      #   return(out)
+      # })
+      # 
+      # ml_errors <- setdiff(download_list, found_errors)
+      # ml_errors <- paste0(ml_errors, collapse="|")
+      # ml_support_bundles <- all_file_paths[grepl(ml_errors, all_file_paths) & !grepl("\\.zip", all_file_paths)]
+      # 
+      # # Now, identify any non-error "Error/Failed" files and push them through the model api
+      # # Machine learning API
+      # all_files <- list.files(ml_support_bundles, full.names=TRUE)
+      # all_files <- all_files[grep("executor|logjam|run|events|execution", all_files)]
+      # #a <- Sys.time()
+      # model_file_errors <- lapply(all_files, function(target_file_name) {
+      #   target_file <- readLines(target_file_name)
+      #   url <- model_rest_url # located in credentials.R (same with model_api_key)
+      #   response <- httr::POST(
+      #     url,
+      #     authenticate(model_api_key, model_api_key, type = "basic"),
+      #     body=toJSON(list(data=list(text = target_file)), auto_unbox = TRUE),
+      #     content_type("application/json")
+      #   )
+      #   
+      #   predictions <- content(response)
+      #   predictions <- unname(unlist(predictions$result))
+      #   
+      #   num_errors <- length(predictions[which(predictions != "none")])
+      #   # Identify any potential errors which are not none. If they exist, turn it into a dataframe. If not, just cbind that stuff
+      #   if(num_errors > 0) {
+      #     error_lines <- which(predictions != "none")
+      #     error_type <- predictions[error_lines]
+      #     error <- target_file[error_lines]
+      #     error_description <- target_file[error_lines]
+      #     data <- data.frame('Error'=errors, 'Line_Number'=error_lines, 'Context'=error_description, 'Error_Type'=error_type)
+      #     data$File_Path <- target_file_name
+      #     datetime_str <- stringi::stri_extract(data$Context, regex="\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z")
+      #     data$Date_Time <- lubridate::ymd_hms(datetime_str, tz = "UTC")
+      #     data$execution_id <- lapply(data$File_Path, function(file_path) {
+      #       file_path <- stringi::stri_split(file_path, regex="/") %>% unlist()
+      #       execution_id <- file_path[length(file_path)-1]
+      #     })
+      #     
+      #     associated_node <- target_file[grep("assignedNodeName", target_file)]
+      #     associated_node <- stringi::stri_extract(associated_node, regex="ip-[0-9]+-[0-9]+-[0-9]+-[0-9]+\\..*\\.compute.internal")
+      #     if(length(associated_node) > 0) {
+      #       data$Node <- associated_node
+      #     } else {
+      #       data$Node <- NA
+      #     }
+      #     
+      #     out <- data
+      #   } else {
+      #     out <- data.frame(
+      #       Error = character(0),
+      #       Line_Number = integer(0),
+      #       Context = character(0),
+      #       Error_Type = character(0),
+      #       File_Path = character(0),
+      #       Node = character(0)
+      #     )
+      #   }
+      # }) %>% do.call(rbind, .)
+      # 
+      # 
+      # # browser()
+      # output_df <- rbind(output_df, model_file_errors)
       #zip_files <- list.files(path = dest_dir, pattern = "\\.zip$", full.names = TRUE)
       # Delete the zip files
       incProgress(1/2)
