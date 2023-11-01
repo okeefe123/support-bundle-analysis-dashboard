@@ -66,6 +66,8 @@ All support bundles are saved, with error analysis identification and classifica
    <b>Note:</b> When prompted for the environment, you will need to create and use the custom environment detailed in the following section.
 4. Either in the forked github repo itself or in a created workspace on Domino, create a file in the mnt/code directory titled "credentials.R" with the following information:
 ```
+#credentials.R:
+
 domino_project_name <- <target_project_name>
 domino_url <- <url-without-https://>
 data_directory <- paste0("/mnt/data/", domino_project_name, "/")
