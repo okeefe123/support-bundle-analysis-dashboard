@@ -208,3 +208,7 @@ lapply(execution_ids_to_save, function(target_id) {
   target_errors <- model_file_errors[which(model_file_errors$execution_id == target_id),]
   write.csv(target_errors, file_path)
 })
+
+
+missing_errors <- setdiff(error_ids, execution_ids_to_save)
+base::saveRDS(missing_errors, "/mnt/data/allstate_log_github/missing_execution_ids_to_investigate_10_31_2023.rds")
