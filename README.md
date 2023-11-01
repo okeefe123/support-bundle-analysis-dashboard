@@ -64,11 +64,17 @@ All support bundles are saved, with error analysis identification and classifica
 ![](./www/add_git_credentials.png)
 
    <b>Note:</b> When prompted for the environment, you will need to create and use the custom environment detailed in the following section.
-4. Either in the forked github repo itself or in a created workspace on Domino, change the following first few lines in the file `global.R` to suit your situation:
+4. Either in the forked github repo itself or in a created workspace on Domino, create a file in the mnt/code directory titled "credentials.R" with the following information:
 ```
-domino_project_name <- "allstate_log_github"
-domino_url <- 'prod-field.cs.domino.tech'
+domino_project_name <- <target_project_name>
+domino_url <- <url-without-https://>
 data_directory <- paste0("/mnt/data/", domino_project_name, "/")
+
+# Optional! This is for the log error classifier if enabled. These are found via the API call for a deployed model
+model_api_key <- <model-api-key>
+model_rest_url <- <model-rest-url>
+
+domino_user_api_key <- system("echo $DOMINO_USER_API_KEY", intern=TRUE)
 ```
 
 4. Navigate to the `Publish > App` page and click `Yes, I have app.sh in my code directory`. That's it!
