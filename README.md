@@ -78,6 +78,7 @@ model_rest_url <- <model-rest-url>
 
 domino_user_api_key <- system("echo $DOMINO_USER_API_KEY", intern=TRUE)
 ```
+This will be sourced at the beginning of startup.
 
 4. Navigate to the `Publish > App` page and click `Yes, I have app.sh in my code directory`. That's it!
 
