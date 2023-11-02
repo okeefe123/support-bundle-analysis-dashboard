@@ -316,7 +316,7 @@ identify_support_bundle_errors <- function(file_paths=file_paths, regex_pattern_
   return(metadata_errors)
 }
 
-
+#target_file <- paste0(data_directory, "support-bundles/65393d24b9c768436d831668.zip")
 ####DOWNLOAD SUPPORT BUNDLES IN PARALLEL####
 unzip_single <- function(target_file) {
   # Check to see if this file is a newly downloaded zip
@@ -333,7 +333,6 @@ unzip_single <- function(target_file) {
       dir.create(final_dest_dir, recursive = TRUE)
       unzip(target_file, exdir = final_dest_dir)
     }
-    
   } else {
     final_dest_dir <- target_file
   }

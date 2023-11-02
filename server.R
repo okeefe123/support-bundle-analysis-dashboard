@@ -612,14 +612,14 @@ server <- function(input, output, session) {
         length(which(new_out$running_during_timestamp < 0)) == 0
       }, error = function(e) FALSE)
       
-      validate(
+      shiny::validate(
         need(is_negative, "Oops! Aggregations yielded a negative time duration.")
       )
       
       
       new_out$timestamp <- as.numeric(new_out$date_time) * 1000
       new_out$date_time <- as.POSIXct(new_out$date_time, origin="1970-01-01", tz="UTC")
-      #browser()
+      # browser()
       
       # Because the above aggregation rely on "ceiling rounding" for closing date, some of the close times may round
       # to the next day. This does not make sense when looking at anything in the future (these should just be seen as being open at time of aggregation)
@@ -837,7 +837,9 @@ server <- function(input, output, session) {
                             br(),
                             shinycssloaders::withSpinner(highcharter::highchartOutput(height = "600px", "error_summary_bar_chart")),
                             br(),
-                            textAreaInput("listBox", "Execution Ids without Found Errors", value = execution_ids_no_errors(), rows = length(unlist(execution_ids_no_errors()))+1)),
+                            textAreaInput("executions_no_errors_found", "Execution Ids without Found Errors", value = execution_ids_no_errors(), rows = length(unlist(execution_ids_no_errors()))+1),
+                            textAreaInput("executions_failed_to_download", "Support Bundle Download Failures", value = execution_ids_failed_downloads_str(), rows = length(unlist(execution_ids_failed_downloads_str()))+1)
+                            ),
             shiny::tabPanel(height = "600px", "Data", 
                             DT::DTOutput("error_render"),
                             HTML("<br>"),
@@ -1194,19 +1196,47 @@ server <- function(input, output, session) {
   
   execution_ids_failed_downloads <- shiny::reactive({
     if(!is.null(metadata_df()) & !is.null(selected_execution_ids())) {
-      browser()
-      successfully_downloaded_ids <- list.files(paste0(data_directory, "support-bundles"))
-      setdiff(paste0(selected_execution_ids(), ".zip"), successfully_downloaded_ids)
-      selected_execution_ids()
-      cat("We made it here!!")
+      support_bundle_dirs <- list.files(paste0(data_directory, "support-bundles"), full.name=TRUE)
+      support_bundle_dirs <- support_bundle_dirs[!grepl("\\.zip", support_bundle_dirs)]
+      support_bundle_dirs <- support_bundle_dirs[grep(paste0(selected_execution_ids(), collapse="|"), support_bundle_dirs)]
+      find_empty_dirs <- function(dir_list) {
+        dir <- "/mnt/data/allstate_log_github/support-bundles/653d31a42f1a8933ba692edf"
+        sapply(dir_list, function(dir) {
+          # List files in the directory, recursive=FALSE ensures we only check the top level
+          files <- list.files(dir, recursive = FALSE)
+          
+          # Return TRUE if no files are found, else FALSE
+          return(length(files) == 0)
+        })
+      }
+      
+      empty_support_bundles <- support_bundle_dirs[find_empty_dirs(support_bundle_dirs)]
+      
+      failed_ids <- lapply(empty_support_bundles, function(target_bundle) {
+        id <- stringi::stri_split(target_bundle, regex="/") %>% unlist()
+        id <- id[length(id)]
+        return(id)
+      }) %>% unlist()
+
+      return(failed_ids)
     }
   })
   
   execution_ids_no_errors <- shiny::reactive({
     if(!is.null(metadata_df()) & !is.null(selected_execution_ids())){
-      browser()
-      error_free_ids <- paste0(setdiff(selected_execution_ids(), metadata_df()$execution_id), collapse="\n")
+      no_errors_found <- setdiff(selected_execution_ids(), metadata_df()$execution_id)
+      no_errors_found <- setdiff(no_errors_found, execution_ids_failed_downloads())
+      error_free_ids <- paste0(no_errors_found, collapse="\n")
       return(error_free_ids)
+    }
+  })
+  
+  execution_ids_failed_downloads_str <- shiny::reactive({
+    if(!is.null(execution_ids_failed_downloads())) {
+      #browser()
+      execution_ids_failed_downloads_str <- execution_ids_failed_downloads()[which(execution_ids_failed_downloads() != "NA")]
+      execution_ids_failed_downloads_str <- paste0(execution_ids_failed_downloads_str, collapse="\n")
+      return(execution_ids_failed_downloads_str)
     }
   })
   
@@ -1527,7 +1557,7 @@ server <- function(input, output, session) {
       names(path_choices) <- list.files(directories, full.names=FALSE)
       
       shiny::validate(
-        need(length(path_choices) > 0, as.character("No associated files found. This tends to be the result of a (500) Internal Server Error on pull of support bundle. Refer to documentation to manually extract by execution id."))
+        need(length(path_choices) > 0, as.character("No associated files found. This tends to be the result of a (500) Internal Server Error on pull of support bundle and is likely due to this execution being one that had failed to start. Please select another bundle."))
       )
       
       div(class = "shiny-select-spacing",
@@ -1547,6 +1577,7 @@ server <- function(input, output, session) {
       #browser()
       bundle_summary_content <- readLines(input$bundle_content_summary_select, warn = FALSE)
       if(length(bundle_summary_content) > 0) {
+        # This is formatting the bundle content
         #bundle_summary_content <- paste0("<b>", seq_along(bundle_summary_content), ":</b>&nbsp;&nbsp;", bundle_summary_content)
         # Compute the maximum number of digits
         max_digits <- nchar(max(seq_along(bundle_summary_content)))
@@ -1696,8 +1727,7 @@ server <- function(input, output, session) {
   execution_ids <- shiny::reactive({
     if(!is.null(support_bundle_dirs())) {
       #browser()
-      all_available_support_bundles <- support_bundle_dirs()[grep("^support-bundle-[a-f0-9]{24}$", support_bundle_dirs())]
-      all_available_support_bundles <- stringi::stri_extract(all_available_support_bundles, regex="(?<=support-bundle-).*")
+      available_support_bundles <- support_bundle_dirs()[!grepl("\\.zip",support_bundle_dirs())]
     }
   })
   
@@ -1720,7 +1750,7 @@ server <- function(input, output, session) {
       #browser()
       execution_ids()
       
-      directories <- paste0(data_directory, "support-bundles/support-bundle-", input$support_bundle_ids_multiselect)
+      directories <- paste0(data_directory, "support-bundles/", input$support_bundle_ids_multiselect)
       path_choices <- list.files(directories, full.names=TRUE)
 
       shiny::validate(
